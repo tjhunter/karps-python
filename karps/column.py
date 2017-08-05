@@ -149,6 +149,7 @@ class Column(AbstractColumn):
       return "struct(" + ",".join([c._pretty_name() for c in self._struct]) + ")"
     if self._function_name:
       return self._function_name + "(" + ",".join([c._pretty_name() for c in self._struct]) + ")"
+    raise None
 
 
 class DataFrame(AbstractColumn, AbstractNode):
@@ -203,7 +204,7 @@ class Observable(AbstractNode):
       op_extra_p=None, # proto for extra of the op
       parents=None, # List of nodes
       deps=None, # List of nodes
-      path=None,
+      path=None, # A path object
       path_extra=None): # Path
     AbstractNode.__init__(self)
     self._op_name = op_name
@@ -214,7 +215,7 @@ class Observable(AbstractNode):
     self._op_extra_p = op_extra_p
     self._parents = _as_nodes(parents)
     self._logical_dependencies = _as_nodes(deps)
-    self._is_distributed = True
+    self._is_distributed = False
 
 def dataframe(obj, schema=None, name=None):
   """ Constructs a dataframe from a python object.

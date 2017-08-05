@@ -6,7 +6,7 @@ from .proto import row_pb2
 
 from .types import *
 
-__all__ = ['CellWithType', 'as_cell']
+__all__ = ['CellWithType', 'as_cell', 'as_python_object']
 
 class CellWithType(object):
   """ A cell of data, with its type information.
@@ -52,6 +52,28 @@ def as_cell(obj, schema=None):
   """
   cwt_proto = _as_cell(obj, schema._proto if schema else None)
   return CellWithType(cwt_proto)
+
+def as_python_object(cwt):
+  """ Converts a CellWithType object to a python object (best effort).
+  """
+  return _as_python(cwt._proto.cell, cwt._proto.cell_type)
+
+def _as_python(c_proto, tpe_proto):
+  # The type is still required for dictionaries.
+  if c_proto.HasField('int_value'):
+    return int(c_proto.int_value)
+  if c_proto.HasField('string_value'):
+    return str(c_proto.string_value)
+  if c_proto.HasField('double_value'):
+    return float(c_proto.double_value)
+  if c_proto.HasField('array_value'):
+    return [_as_python(x, tpe_proto.array_type) for x in c_proto.array_value.values]
+  if c_proto.HasField('struct_value'):
+    fields = tpe_proto.struct_type.fields
+    field_names = [f.field_name for f in fields]
+    field_types = [f.field_type for f in fields]
+    values = [_as_python(x, t) for (x, t) in zip(c_proto.struct_value, field_types)]
+    return dict(zip(field_names, values))
 
 def _as_cell(obj, tpe_proto):
   # This is one of the most complex functions, because it tries to do the 'right' thing from

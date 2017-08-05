@@ -15,12 +15,25 @@ print(ct)
 
 print(df.ee)
 
+# g = group_by(df.xx, key=df.ee)
+# g['zz'] # Select on values
+# g.key
+# g.agg(sum)
+# agg(sum(g.values))
+# sum(g)
+# sum(df.xx.group_by(df.ee))
+# g.agg({'a': sum, 'b': max})
+# g.agg([sum, max])
+# g.agg([('a', sum), ('b', max)])
+
 print(ks.dataframe([(1,)], schema="ee"))
 print(ks.dataframe([[1]], schema="ee"))
 print(ks.dataframe([(1,)], schema=["ee"]))
 print(ks.dataframe([(1,)]))
 
 df = ks.dataframe([1,2,3], name="df")
+
+
 #df2 = df / f.max(df)
 
 with ks.scope("scope1"):
@@ -30,8 +43,9 @@ with ks.scope("scope1"):
   print(ct)
 
 s = ks.session("test")
-comp = s.run(ct)
-print(comp.values())
+res = s.run(ct)
+print(res)
+print(s.run(ct, return_mode='python'))
 
 # channel = grpc.insecure_channel('localhost:8082')
 # stub = interface_pb2_grpc.KarpsMainStub(channel)

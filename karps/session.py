@@ -28,38 +28,53 @@ class Session(object):
   def __repr__(self):
     return "Session:{}".format(self.name)
 
-  def value(self, path, computation = None):
-    """ Retrieves a single value with the given path.
-    If no computation is specified, it will try to retrieve the latest 
-    value that corresponds to this path.
-    """
-    pass
+  # def value(self, path, computation = None):
+  #   """ Retrieves a single value with the given path.
+  #   If no computation is specified, it will try to retrieve the latest 
+  #   value that corresponds to this path.
+  #   """
+  #   pass
 
-  def run(self, fetches, feed_dict=None):
+  def run(self, fetches, return_mode="proto"):
     """ Blocks until all the fetches are executed.
+
+    Return modes (string):
+     - proto: returns a row.CellWithType object, which is the most precise, but not
+              very user friendly
+     - python: converts the results to python data structures (basic types, lists, dictionaries)
+     - pandas: returns a pandas dataframe
     """
-    computation = self.compute(fetches, feed_dict)
+    computation = self.compute(fetches, return_mode)
     return computation.values()
 
-  def compute(self, fetches, feed_dict=None):
+  def compute(self, fetches, return_mode="proto"):
     """ Executes the fetches in an asynchronous manner.
+
+    return_mode: see run()
+
     """
     # Build and quickly validate the graph of computations.
     # This is a lightweight client, nothing fancy is done on the python side.
-    fetches = _check_list(fetches)
+    (fetches, final_unpack) = _check_list(fetches)
     for fetch in fetches:
       assert isinstance(fetch, AbstractNode), (type(fetch), fetch)
+    accepted_modes = ['proto', 'python', 'pandas']
+    if return_mode not in accepted_modes:
+      raise ValueError(
+        "Provided return mode ({}) is not one of the accepted modes: {}".format(
+          return_mode, return_modes))
     paths = [an.path for an in fetches]
     g = _build_graph(fetches)
+    print("compute: ", g)
     # The data looks good, opening a channel with the backend.
     self.computation_counter += 1
     session_id = SessionId(id=self.name)
     computation_id = computation_pb2.ComputationId(id=str(self.computation_counter))
     channel = self._stub.StreamCreateComputation(interface_pb2.CreateComputationRequest(
       session=session_id,
-      computation=computation_id,
+      requested_computation=computation_id,
       graph=g))
-    return Computation(session_id, computation_id, channel, paths)
+    return Computation(session_id, computation_id, channel, paths, final_unpack, return_mode)
 
 def session(name, port = 8082, address = "localhost"):
   """ Creates a new remote session that uses the GRPC interface to communicate with the frontend.
@@ -74,10 +89,10 @@ def session(name, port = 8082, address = "localhost"):
 
 def _check_list(x):
   if isinstance(x, list):
-    return x
+    return (x, False)
   if isinstance(x, tuple):
-    return list(x)
-  return [x]
+    return (list(x), False)
+  return ([x], True)
 
 def _build_node(an):
   # an: an AbstractNode
