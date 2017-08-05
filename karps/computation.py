@@ -11,7 +11,17 @@ class Computation(object):
    - results and stats (including for spark, the detail of the various plans)
   """
 
-  def __init__(self, sessionId, computationId, channel):
-    self.sessionId = sessionId
-    self.computationId = computationId
+  def __init__(self, session_id_p, computation_id_p, channel, target_fetch_paths):
+    self._session_id_p = session_id_p
+    self._computation_id_p = computation_id_p
     self._channel = channel
+    self._target_fetch_paths = target_fetch_paths
+
+  def values(self):
+    """ Returns the fetches (or the unique fetch if there is only one).
+
+    Blocks until the fetches are available or until an error is raised.
+    """
+    for x in self._channel:
+      print(x)
+    raise None

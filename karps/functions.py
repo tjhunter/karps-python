@@ -9,3 +9,9 @@ def collect(c, name=None):
     ArrayType(c.type),
     parents=[c],
     path_extra=name)
+
+def max(c, name=None):
+  return Observable("org.spark.Max", c.type,
+    parents=[c],
+    path_extra=name)
+

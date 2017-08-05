@@ -14,6 +14,8 @@ class AbstractProtoWrapper(object):
   def __ne__(self, other):
     return self._proto != other._proto
 
+  def __hash__(self):
+    return self._proto.SerializeToString().__hash__()
 
 
 ########### Paths ########
@@ -30,19 +32,19 @@ def get_and_increment_counter():
   _current_global_counter += 1
   return x
 
-class Path(object):
+class Path(AbstractProtoWrapper):
   """ A path to an object.
   """
 
   def __init__(self, p=None):
     p = p or graph_pb2.Path()
-    self._p = p
+    self._proto = p
 
   def __repr__(self):
     return "/" + "/".join(self.to_list())
 
   def to_list(self):
-    return list(self._p.path)
+    return list(self._proto.path)
 
   def push(self, x):
     if x is None:
@@ -50,7 +52,7 @@ class Path(object):
     if isinstance(x, str):
       x = x.split("/")
     x = list(x)
-    p2 = list(self._p.path) + x
+    p2 = list(self._proto.path) + x
     res = Path(graph_pb2.Path(path=p2))
     return res
 

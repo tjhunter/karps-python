@@ -58,7 +58,7 @@ class StructField(AbstractProtoWrapper):
 
   @property
   def type(self):
-    return self._proto.field_type
+    return DataType(self._proto.field_type)
 
 def IntegerType(strict=True):
   return DataType(pb.SQLType(basic_type=pb.SQLType.INT, nullable=not strict))

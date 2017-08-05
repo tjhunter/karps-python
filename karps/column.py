@@ -5,6 +5,7 @@
 import re
 
 from .proto import types_pb2
+from .proto import structured_transform_pb2 as st_pb2
 from .row import as_cell
 from .utils import current_path, get_and_increment_counter
 from .types import DataType
@@ -37,8 +38,13 @@ class AbstractColumn(object):
       assert self.type.is_struct_type, self.type
       fnames = [f.name for f in self.type.struct_fields]
       assert name in fnames, (name, fnames)
-      return None
-    assert False, type(name)
+      field = next(f for f in self.type.struct_fields if f.name == name)
+      return Column(
+        ref=self.reference,
+        type_p=field.type._proto,
+        field_name=name,
+        extraction=[name])
+    assert False, (type(name), name)
 
 class AbstractNode(object):
   """ The base class for observables or dataframes.
@@ -57,6 +63,29 @@ class AbstractNode(object):
     """ The data type of this column """
     return DataType(self._type_p)
 
+  @property
+  def is_distributed(self):
+    return self._is_distributed
+
+  @property
+  def is_local(self):
+    return not self.is_distributed
+
+  @property
+  def op_extra(self):
+    """ Returns a proto """
+    return self._op_extra_p
+
+  @property
+  def parents(self):
+    """ Returns the parents (other nodes). """
+    return self._parents
+
+  @property
+  def logical_dependencies(self):
+    """ The logical dependencies """
+    return self._logical_dependencies
+
   def __repr__(self):
     return "{p}@{o}:{dt}".format(
       p=str(self.path),
@@ -74,7 +103,7 @@ class Column(AbstractColumn):
       field_name=None,
       struct=None, # List of cols (with field names)
       function_name=None, # String
-      function_deps=None, # List of cols or observables.
+      function_deps=None, # List of cols.
       extraction=None): # list of strings
     AbstractColumn.__init__(self)
     assert ref # DataFrame
@@ -86,6 +115,9 @@ class Column(AbstractColumn):
     self._function_name = function_name
     self._function_deps = function_deps
     self._extraction = extraction
+
+  def __repr__(self):
+    return "{}:{}<-{}".format(self._pretty_name(), self.type, self.reference)
 
   @property
   def reference(self):
@@ -101,9 +133,22 @@ class Column(AbstractColumn):
     """ A column, seen as a dataframe (referring to itself).
 
     This causes all the columns to be resolved and coalesced. Intermediary dataframes may
-    also be created if some broadcasts need to happen. The current resolution is rather inefficient.
+    also be created if some broadcasts need to happen.
     """
-    assert False
+    return DataFrame(
+      op_name="org.spark.TransformDistributed",
+      op_extra_p=_col_op_proto(self),
+      type_p=self._type_p,
+      parents=[self.reference] # TODO: fix when we have literals
+    )
+
+  def _pretty_name(self):
+    if self._field_name is not None:
+      return self._field_name
+    if self._struct:
+      return "struct(" + ",".join([c._pretty_name() for c in self._struct]) + ")"
+    if self._function_name:
+      return self._function_name + "(" + ",".join([c._pretty_name() for c in self._struct]) + ")"
 
 
 class DataFrame(AbstractColumn, AbstractNode):
@@ -127,13 +172,21 @@ class DataFrame(AbstractColumn, AbstractNode):
     self._path = path
     self._op_extra_p = op_extra_p
     self._parents = _as_nodes(parents)
-    self._deps = _as_nodes(deps)
+    self._logical_dependencies = _as_nodes(deps)
+    self._is_distributed = True
 
+  @property
+  def reference(self):
+    """ The referring dataframe (itself). """
+    return self
 
   def as_column(self):
     """ A dataframe, seen as a column.
     """
-    assert False 
+    return Column(
+      ref=self,
+      type_p=self.type_p,
+      extraction=st_pb2.Column(extraction=st_pb2.ColumnExtraction(path=[])))
 
   def as_dataframe(self):
     """ A dataframe, seen as a dataframe. """
@@ -160,7 +213,8 @@ class Observable(AbstractNode):
     self._path = path
     self._op_extra_p = op_extra_p
     self._parents = _as_nodes(parents)
-    self._deps = _as_nodes(deps)
+    self._logical_dependencies = _as_nodes(deps)
+    self._is_distributed = True
 
 def dataframe(obj, schema=None, name=None):
   """ Constructs a dataframe from a python object.
@@ -234,3 +288,21 @@ def _build_path(requested_name, op_name, curr_path):
     requested_name = _convert(op_name.split(".")[-1]) + "_" + str(counter)
   requested_path = curr_path.push(requested_name)
   return requested_path
+
+def _col_op_proto(c):
+  res = st_pb2.ColumnStructure(field_name=c._field_name)
+  if c._struct is not None:
+    assert c._struct, c # Should not be empty
+    res.struct.fields = [_col_op_proto(c2) for c2 in c._struct]
+    for f in res.struct.fields:
+      assert f.field_name, (f, c, res)
+  elif c._function_name is not None:
+    res.function.function_name = c._function_name
+    res.function.inputs = [_col_op_proto(c2) for c2 in c._function_deps]
+  elif c._extraction is not None:
+    res.extraction.path = c._extraction
+  else:
+    assert False, c # Should not reach this point
+  return res
+
+
