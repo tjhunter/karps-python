@@ -21,7 +21,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   name='karps/proto/interface.proto',
   package='karps.core',
   syntax='proto3',
-  serialized_pb=_b('\n\x1bkarps/proto/interface.proto\x12\nkarps.core\x1a\x17karps/proto/graph.proto\x1a\x1dkarps/proto/computation.proto\"H\n\x14\x43reateSessionRequest\x12\x30\n\x11requested_session\x18\x01 \x01(\x0b\x32\x15.karps.core.SessionId\"\x17\n\x15\x43reateSessionResponse\"\xce\x01\n\x18\x43reateComputationRequest\x12&\n\x07session\x18\x01 \x01(\x0b\x32\x15.karps.core.SessionId\x12.\n\x0b\x63omputation\x18\x02 \x01(\x0b\x32\x19.karps.core.ComputationId\x12 \n\x05graph\x18\x03 \x01(\x0b\x32\x11.karps.core.Graph\x12\x38\n\x15requested_computation\x18\x04 \x01(\x0b\x32\x19.karps.core.ComputationId\"\x1b\n\x19\x43reateComputationResponse\"\x9d\x01\n\x18\x43omputationStatusRequest\x12&\n\x07session\x18\x01 \x01(\x0b\x32\x15.karps.core.SessionId\x12.\n\x0b\x63omputation\x18\x02 \x01(\x0b\x32\x19.karps.core.ComputationId\x12)\n\x0frequested_paths\x18\x03 \x03(\x0b\x32\x10.karps.core.Path\"l\n\x15ResourceStatusRequest\x12&\n\x07session\x18\x01 \x01(\x0b\x32\x15.karps.core.SessionId\x12+\n\tresources\x18\x02 \x03(\x0b\x32\x18.karps.core.ResourcePath\"[\n\x12HdfsResourceStatus\x12&\n\x04path\x18\x01 \x01(\x0b\x32\x18.karps.core.ResourcePath\x12\r\n\x05\x65rror\x18\x02 \x01(\t\x12\x0e\n\x06return\x18\x03 \x01(\t\"F\n\x16ResourceStatusResponse\x12,\n\x04hdfs\x18\x01 \x03(\x0b\x32\x1e.karps.core.HdfsResourceStatus\"\x8a\x02\n\x19\x43omputationStreamResponse\x12&\n\x07session\x18\x01 \x01(\x0b\x32\x15.karps.core.SessionId\x12.\n\x0b\x63omputation\x18\x02 \x01(\x0b\x32\x19.karps.core.ComputationId\x12(\n\x0bstart_graph\x18\x03 \x01(\x0b\x32\x11.karps.core.GraphH\x00\x12)\n\x0cpinned_graph\x18\x04 \x01(\x0b\x32\x11.karps.core.GraphH\x00\x12\x35\n\x07results\x18\x05 \x01(\x0b\x32\".karps.core.BatchComputationResultH\x00\x42\t\n\x07updates2\xe5\x03\n\tKarpsMain\x12T\n\rCreateSession\x12 .karps.core.CreateSessionRequest\x1a!.karps.core.CreateSessionResponse\x12`\n\x11\x43reateComputation\x12$.karps.core.CreateComputationRequest\x1a%.karps.core.CreateComputationResponse\x12]\n\x11\x43omputationStatus\x12$.karps.core.ComputationStatusRequest\x1a\".karps.core.BatchComputationResult\x12h\n\x17StreamCreateComputation\x12$.karps.core.CreateComputationRequest\x1a%.karps.core.ComputationStreamResponse0\x01\x12W\n\x0eResourceStatus\x12!.karps.core.ResourceStatusRequest\x1a\".karps.core.ResourceStatusResponseb\x06proto3')
+  serialized_pb=_b('\n\x1bkarps/proto/interface.proto\x12\nkarps.core\x1a\x17karps/proto/graph.proto\x1a\x1dkarps/proto/computation.proto\"H\n\x14\x43reateSessionRequest\x12\x30\n\x11requested_session\x18\x01 \x01(\x0b\x32\x15.karps.core.SessionId\"\x17\n\x15\x43reateSessionResponse\"\xc9\x01\n\x18\x43reateComputationRequest\x12&\n\x07session\x18\x01 \x01(\x0b\x32\x15.karps.core.SessionId\x12 \n\x05graph\x18\x03 \x01(\x0b\x32\x11.karps.core.Graph\x12\x38\n\x15requested_computation\x18\x04 \x01(\x0b\x32\x19.karps.core.ComputationId\x12)\n\x0frequested_paths\x18\x05 \x03(\x0b\x32\x10.karps.core.Path\"\x1b\n\x19\x43reateComputationResponse\"\x9d\x01\n\x18\x43omputationStatusRequest\x12&\n\x07session\x18\x01 \x01(\x0b\x32\x15.karps.core.SessionId\x12.\n\x0b\x63omputation\x18\x02 \x01(\x0b\x32\x19.karps.core.ComputationId\x12)\n\x0frequested_paths\x18\x03 \x03(\x0b\x32\x10.karps.core.Path\"l\n\x15ResourceStatusRequest\x12&\n\x07session\x18\x01 \x01(\x0b\x32\x15.karps.core.SessionId\x12+\n\tresources\x18\x02 \x03(\x0b\x32\x18.karps.core.ResourcePath\"[\n\x12HdfsResourceStatus\x12&\n\x04path\x18\x01 \x01(\x0b\x32\x18.karps.core.ResourcePath\x12\r\n\x05\x65rror\x18\x02 \x01(\t\x12\x0e\n\x06return\x18\x03 \x01(\t\"F\n\x16ResourceStatusResponse\x12,\n\x04hdfs\x18\x01 \x03(\x0b\x32\x1e.karps.core.HdfsResourceStatus\"\x8a\x02\n\x19\x43omputationStreamResponse\x12&\n\x07session\x18\x01 \x01(\x0b\x32\x15.karps.core.SessionId\x12.\n\x0b\x63omputation\x18\x02 \x01(\x0b\x32\x19.karps.core.ComputationId\x12(\n\x0bstart_graph\x18\x03 \x01(\x0b\x32\x11.karps.core.GraphH\x00\x12)\n\x0cpinned_graph\x18\x04 \x01(\x0b\x32\x11.karps.core.GraphH\x00\x12\x35\n\x07results\x18\x05 \x01(\x0b\x32\".karps.core.BatchComputationResultH\x00\x42\t\n\x07updates2\xe5\x03\n\tKarpsMain\x12T\n\rCreateSession\x12 .karps.core.CreateSessionRequest\x1a!.karps.core.CreateSessionResponse\x12`\n\x11\x43reateComputation\x12$.karps.core.CreateComputationRequest\x1a%.karps.core.CreateComputationResponse\x12]\n\x11\x43omputationStatus\x12$.karps.core.ComputationStatusRequest\x1a\".karps.core.BatchComputationResult\x12h\n\x17StreamCreateComputation\x12$.karps.core.CreateComputationRequest\x1a%.karps.core.ComputationStreamResponse0\x01\x12W\n\x0eResourceStatus\x12!.karps.core.ResourceStatusRequest\x1a\".karps.core.ResourceStatusResponseb\x06proto3')
   ,
   dependencies=[karps_dot_proto_dot_graph__pb2.DESCRIPTOR,karps_dot_proto_dot_computation__pb2.DESCRIPTOR,])
 
@@ -98,23 +98,23 @@ _CREATECOMPUTATIONREQUEST = _descriptor.Descriptor(
       is_extension=False, extension_scope=None,
       options=None),
     _descriptor.FieldDescriptor(
-      name='computation', full_name='karps.core.CreateComputationRequest.computation', index=1,
-      number=2, type=11, cpp_type=10, label=1,
-      has_default_value=False, default_value=None,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      options=None),
-    _descriptor.FieldDescriptor(
-      name='graph', full_name='karps.core.CreateComputationRequest.graph', index=2,
+      name='graph', full_name='karps.core.CreateComputationRequest.graph', index=1,
       number=3, type=11, cpp_type=10, label=1,
       has_default_value=False, default_value=None,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
     _descriptor.FieldDescriptor(
-      name='requested_computation', full_name='karps.core.CreateComputationRequest.requested_computation', index=3,
+      name='requested_computation', full_name='karps.core.CreateComputationRequest.requested_computation', index=2,
       number=4, type=11, cpp_type=10, label=1,
       has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='requested_paths', full_name='karps.core.CreateComputationRequest.requested_paths', index=3,
+      number=5, type=11, cpp_type=10, label=3,
+      has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
@@ -131,7 +131,7 @@ _CREATECOMPUTATIONREQUEST = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=199,
-  serialized_end=405,
+  serialized_end=400,
 )
 
 
@@ -154,8 +154,8 @@ _CREATECOMPUTATIONRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=407,
-  serialized_end=434,
+  serialized_start=402,
+  serialized_end=429,
 )
 
 
@@ -199,8 +199,8 @@ _COMPUTATIONSTATUSREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=437,
-  serialized_end=594,
+  serialized_start=432,
+  serialized_end=589,
 )
 
 
@@ -237,8 +237,8 @@ _RESOURCESTATUSREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=596,
-  serialized_end=704,
+  serialized_start=591,
+  serialized_end=699,
 )
 
 
@@ -282,8 +282,8 @@ _HDFSRESOURCESTATUS = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=706,
-  serialized_end=797,
+  serialized_start=701,
+  serialized_end=792,
 )
 
 
@@ -313,8 +313,8 @@ _RESOURCESTATUSRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=799,
-  serialized_end=869,
+  serialized_start=794,
+  serialized_end=864,
 )
 
 
@@ -375,15 +375,15 @@ _COMPUTATIONSTREAMRESPONSE = _descriptor.Descriptor(
       name='updates', full_name='karps.core.ComputationStreamResponse.updates',
       index=0, containing_type=None, fields=[]),
   ],
-  serialized_start=872,
-  serialized_end=1138,
+  serialized_start=867,
+  serialized_end=1133,
 )
 
 _CREATESESSIONREQUEST.fields_by_name['requested_session'].message_type = karps_dot_proto_dot_computation__pb2._SESSIONID
 _CREATECOMPUTATIONREQUEST.fields_by_name['session'].message_type = karps_dot_proto_dot_computation__pb2._SESSIONID
-_CREATECOMPUTATIONREQUEST.fields_by_name['computation'].message_type = karps_dot_proto_dot_computation__pb2._COMPUTATIONID
 _CREATECOMPUTATIONREQUEST.fields_by_name['graph'].message_type = karps_dot_proto_dot_graph__pb2._GRAPH
 _CREATECOMPUTATIONREQUEST.fields_by_name['requested_computation'].message_type = karps_dot_proto_dot_computation__pb2._COMPUTATIONID
+_CREATECOMPUTATIONREQUEST.fields_by_name['requested_paths'].message_type = karps_dot_proto_dot_graph__pb2._PATH
 _COMPUTATIONSTATUSREQUEST.fields_by_name['session'].message_type = karps_dot_proto_dot_computation__pb2._SESSIONID
 _COMPUTATIONSTATUSREQUEST.fields_by_name['computation'].message_type = karps_dot_proto_dot_computation__pb2._COMPUTATIONID
 _COMPUTATIONSTATUSREQUEST.fields_by_name['requested_paths'].message_type = karps_dot_proto_dot_graph__pb2._PATH

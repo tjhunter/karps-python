@@ -13,14 +13,16 @@ from google.protobuf import descriptor_pb2
 _sym_db = _symbol_database.Default()
 
 
+from karps.proto import graph_pb2 as karps_dot_proto_dot_graph__pb2
 
 
 DESCRIPTOR = _descriptor.FileDescriptor(
   name='karps/proto/structured_transform.proto',
   package='karps.core',
   syntax='proto3',
-  serialized_pb=_b('\n&karps/proto/structured_transform.proto\x12\nkarps.core\"\xba\x01\n\x06\x43olumn\x12-\n\x06struct\x18\x01 \x01(\x0b\x32\x1b.karps.core.ColumnStructureH\x00\x12.\n\x08\x66unction\x18\x02 \x01(\x0b\x32\x1a.karps.core.ColumnFunctionH\x00\x12\x32\n\nextraction\x18\x03 \x01(\x0b\x32\x1c.karps.core.ColumnExtractionH\x00\x12\x12\n\nfield_name\x18\n \x01(\tB\t\n\x07\x63ontent\"5\n\x0f\x43olumnStructure\x12\"\n\x06\x66ields\x18\x01 \x03(\x0b\x32\x12.karps.core.Column\"K\n\x0e\x43olumnFunction\x12\x15\n\rfunction_name\x18\x01 \x01(\t\x12\"\n\x06inputs\x18\x02 \x03(\x0b\x32\x12.karps.core.Column\" \n\x10\x43olumnExtraction\x12\x0c\n\x04path\x18\x01 \x03(\t\"\x8e\x01\n\x0b\x41ggregation\x12-\n\x02op\x18\x01 \x01(\x0b\x32\x1f.karps.core.AggregationFunctionH\x00\x12\x32\n\x06struct\x18\x02 \x01(\x0b\x32 .karps.core.AggregationStructureH\x00\x12\x12\n\nfield_name\x18\x03 \x01(\tB\x08\n\x06\x61gg_op\"Z\n\x13\x41ggregationFunction\x12\x15\n\rfunction_name\x18\x01 \x01(\t\x12,\n\x06inputs\x18\x02 \x03(\x0b\x32\x1c.karps.core.ColumnExtraction\"?\n\x14\x41ggregationStructure\x12\'\n\x06\x66ields\x18\x01 \x03(\x0b\x32\x17.karps.core.Aggregationb\x06proto3')
-)
+  serialized_pb=_b('\n&karps/proto/structured_transform.proto\x12\nkarps.core\x1a\x17karps/proto/graph.proto\"\xba\x01\n\x06\x43olumn\x12-\n\x06struct\x18\x01 \x01(\x0b\x32\x1b.karps.core.ColumnStructureH\x00\x12.\n\x08\x66unction\x18\x02 \x01(\x0b\x32\x1a.karps.core.ColumnFunctionH\x00\x12\x32\n\nextraction\x18\x03 \x01(\x0b\x32\x1c.karps.core.ColumnExtractionH\x00\x12\x12\n\nfield_name\x18\n \x01(\tB\t\n\x07\x63ontent\"5\n\x0f\x43olumnStructure\x12\"\n\x06\x66ields\x18\x01 \x03(\x0b\x32\x12.karps.core.Column\"K\n\x0e\x43olumnFunction\x12\x15\n\rfunction_name\x18\x01 \x01(\t\x12\"\n\x06inputs\x18\x02 \x03(\x0b\x32\x12.karps.core.Column\" \n\x10\x43olumnExtraction\x12\x0c\n\x04path\x18\x01 \x03(\t\"\x8e\x01\n\x0b\x41ggregation\x12-\n\x02op\x18\x01 \x01(\x0b\x32\x1f.karps.core.AggregationFunctionH\x00\x12\x32\n\x06struct\x18\x02 \x01(\x0b\x32 .karps.core.AggregationStructureH\x00\x12\x12\n\nfield_name\x18\x03 \x01(\tB\x08\n\x06\x61gg_op\"Z\n\x13\x41ggregationFunction\x12\x15\n\rfunction_name\x18\x01 \x01(\t\x12,\n\x06inputs\x18\x02 \x03(\x0b\x32\x1c.karps.core.ColumnExtraction\"?\n\x14\x41ggregationStructure\x12\'\n\x06\x66ields\x18\x01 \x03(\x0b\x32\x17.karps.core.Aggregationb\x06proto3')
+  ,
+  dependencies=[karps_dot_proto_dot_graph__pb2.DESCRIPTOR,])
 
 
 
@@ -75,8 +77,8 @@ _COLUMN = _descriptor.Descriptor(
       name='content', full_name='karps.core.Column.content',
       index=0, containing_type=None, fields=[]),
   ],
-  serialized_start=55,
-  serialized_end=241,
+  serialized_start=80,
+  serialized_end=266,
 )
 
 
@@ -106,8 +108,8 @@ _COLUMNSTRUCTURE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=243,
-  serialized_end=296,
+  serialized_start=268,
+  serialized_end=321,
 )
 
 
@@ -144,8 +146,8 @@ _COLUMNFUNCTION = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=298,
-  serialized_end=373,
+  serialized_start=323,
+  serialized_end=398,
 )
 
 
@@ -175,8 +177,8 @@ _COLUMNEXTRACTION = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=375,
-  serialized_end=407,
+  serialized_start=400,
+  serialized_end=432,
 )
 
 
@@ -223,8 +225,8 @@ _AGGREGATION = _descriptor.Descriptor(
       name='agg_op', full_name='karps.core.Aggregation.agg_op',
       index=0, containing_type=None, fields=[]),
   ],
-  serialized_start=410,
-  serialized_end=552,
+  serialized_start=435,
+  serialized_end=577,
 )
 
 
@@ -261,8 +263,8 @@ _AGGREGATIONFUNCTION = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=554,
-  serialized_end=644,
+  serialized_start=579,
+  serialized_end=669,
 )
 
 
@@ -292,8 +294,8 @@ _AGGREGATIONSTRUCTURE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=646,
-  serialized_end=709,
+  serialized_start=671,
+  serialized_end=734,
 )
 
 _COLUMN.fields_by_name['struct'].message_type = _COLUMNSTRUCTURE

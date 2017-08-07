@@ -64,6 +64,7 @@ class Session(object):
         "Provided return mode ({}) is not one of the accepted modes: {}".format(
           return_mode, return_modes))
     paths = [an.path for an in fetches]
+    paths_proto = [an.path._proto for an in fetches]
     g = _build_graph(fetches)
     print("compute: ", g)
     # The data looks good, opening a channel with the backend.
@@ -73,6 +74,7 @@ class Session(object):
     channel = self._stub.StreamCreateComputation(interface_pb2.CreateComputationRequest(
       session=session_id,
       requested_computation=computation_id,
+      requested_paths=paths_proto,
       graph=g))
     return Computation(session_id, computation_id, channel, paths, final_unpack, return_mode)
 
