@@ -18,3 +18,9 @@ $KARPS/src/main/protobuf/karps/proto/types.proto \
 $KARPS/src/main/protobuf/tensorflow/core/framework/attr_value.proto \
 $KARPS/src/main/protobuf/tensorflow/core/framework/graph.proto \
 $KARPS/src/main/protobuf/tensorflow/core/framework/node_def.proto
+
+How to run:
+
+```bash
+PYTHONPATH=$PWD pipenv run ipython notebook
+```
