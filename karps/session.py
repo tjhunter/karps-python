@@ -98,12 +98,13 @@ def _check_list(x):
 
 def _build_node(an):
   # an: an AbstractNode
-  extra = MessageToJson(an.op_extra) if an.op_extra is not None else None
+  extra_bytes = an.op_extra.SerializeToString() if an.op_extra is not None else None
+  extra = graph_pb2.OpExtra(content=extra_bytes)
   return graph_pb2.Node(
     locality=graph_pb2.DISTRIBUTED if an.is_distributed else graph_pb2.LOCAL,
     path = an.path._proto,
     op_name=an.op_name,
-    op_extra=graph_pb2.OpExtra(content=extra),
+    op_extra=extra,
     parents=[an2.path._proto for an2 in an.parents],
     logical_dependencies=[an2.path._proto for an2 in an.logical_dependencies],
     infered_type=an.type._proto)
