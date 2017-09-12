@@ -22,7 +22,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   name='karps/proto/computation.proto',
   package='karps.core',
   syntax='proto3',
-  serialized_pb=_b('\n\x1dkarps/proto/computation.proto\x12\nkarps.core\x1a\x17karps/proto/graph.proto\x1a\x15karps/proto/row.proto\"\xfd\x01\n\x11\x43omputationResult\x12$\n\nlocal_path\x18\x01 \x01(\x0b\x32\x10.karps.core.Path\x12(\n\x06status\x18\x02 \x01(\x0e\x32\x18.karps.core.ResultStatus\x12\x13\n\x0b\x66inal_error\x18\x03 \x01(\t\x12.\n\x0c\x66inal_result\x18\x04 \x01(\x0b\x32\x18.karps.core.CellWithType\x12+\n\x0bspark_stats\x18\x05 \x01(\x0b\x32\x16.karps.core.SparkStats\x12&\n\x0c\x64\x65pendencies\x18\x06 \x03(\x0b\x32\x10.karps.core.Path\"o\n\x16\x42\x61tchComputationResult\x12%\n\x0btarget_path\x18\x01 \x01(\x0b\x32\x10.karps.core.Path\x12.\n\x07results\x18\x02 \x03(\x0b\x32\x1d.karps.core.ComputationResult\"c\n\x0bPointerPath\x12.\n\x0b\x63omputation\x18\x01 \x01(\x0b\x32\x19.karps.core.ComputationId\x12$\n\nlocal_path\x18\x02 \x01(\x0b\x32\x10.karps.core.Path\"3\n\nSparkStats\x12%\n\x08rdd_info\x18\x01 \x03(\x0b\x32\x13.karps.core.RDDInfo\"L\n\x07RDDInfo\x12\x0e\n\x06rdd_id\x18\x01 \x01(\x03\x12\x12\n\nclass_name\x18\x02 \x01(\t\x12\x0c\n\x04repr\x18\x03 \x01(\t\x12\x0f\n\x07parents\x18\x04 \x03(\x03\"\x1b\n\x0cResourcePath\x12\x0b\n\x03uri\x18\x01 \x01(\t\"\x1b\n\rComputationId\x12\n\n\x02id\x18\x01 \x01(\t\"\x17\n\tSessionId\x12\n\n\x02id\x18\x01 \x01(\t*b\n\x0cResultStatus\x12\n\n\x06UNUSED\x10\x00\x12\x0b\n\x07RUNNING\x10\x01\x12\x14\n\x10\x46INISHED_SUCCESS\x10\x02\x12\x14\n\x10\x46INISHED_FAILURE\x10\x03\x12\r\n\tSCHEDULED\x10\x04\x62\x06proto3')
+  serialized_pb=_b('\n\x1dkarps/proto/computation.proto\x12\nkarps.core\x1a\x17karps/proto/graph.proto\x1a\x15karps/proto/row.proto\"\xfd\x01\n\x11\x43omputationResult\x12$\n\nlocal_path\x18\x01 \x01(\x0b\x32\x10.karps.core.Path\x12(\n\x06status\x18\x02 \x01(\x0e\x32\x18.karps.core.ResultStatus\x12\x13\n\x0b\x66inal_error\x18\x03 \x01(\t\x12.\n\x0c\x66inal_result\x18\x04 \x01(\x0b\x32\x18.karps.core.CellWithType\x12+\n\x0bspark_stats\x18\x05 \x01(\x0b\x32\x16.karps.core.SparkStats\x12&\n\x0c\x64\x65pendencies\x18\x06 \x03(\x0b\x32\x10.karps.core.Path\"o\n\x16\x42\x61tchComputationResult\x12%\n\x0btarget_path\x18\x01 \x01(\x0b\x32\x10.karps.core.Path\x12.\n\x07results\x18\x02 \x03(\x0b\x32\x1d.karps.core.ComputationResult\"c\n\x0bPointerPath\x12.\n\x0b\x63omputation\x18\x01 \x01(\x0b\x32\x19.karps.core.ComputationId\x12$\n\nlocal_path\x18\x02 \x01(\x0b\x32\x10.karps.core.Path\"3\n\nSparkStats\x12%\n\x08rdd_info\x18\x01 \x03(\x0b\x32\x13.karps.core.RDDInfo\"L\n\x07RDDInfo\x12\x0e\n\x06rdd_id\x18\x01 \x01(\x03\x12\x12\n\nclass_name\x18\x02 \x01(\t\x12\x0c\n\x04repr\x18\x03 \x01(\t\x12\x0f\n\x07parents\x18\x04 \x03(\x03\"\x1b\n\rComputationId\x12\n\n\x02id\x18\x01 \x01(\t\"\x17\n\tSessionId\x12\n\n\x02id\x18\x01 \x01(\t*b\n\x0cResultStatus\x12\n\n\x06UNUSED\x10\x00\x12\x0b\n\x07RUNNING\x10\x01\x12\x14\n\x10\x46INISHED_SUCCESS\x10\x02\x12\x14\n\x10\x46INISHED_FAILURE\x10\x03\x12\r\n\tSCHEDULED\x10\x04\x62\x06proto3')
   ,
   dependencies=[karps_dot_proto_dot_graph__pb2.DESCRIPTOR,karps_dot_proto_dot_row__pb2.DESCRIPTOR,])
 
@@ -55,8 +55,8 @@ _RESULTSTATUS = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   options=None,
-  serialized_start=777,
-  serialized_end=875,
+  serialized_start=748,
+  serialized_end=846,
 )
 _sym_db.RegisterEnumDescriptor(_RESULTSTATUS)
 
@@ -294,37 +294,6 @@ _RDDINFO = _descriptor.Descriptor(
 )
 
 
-_RESOURCEPATH = _descriptor.Descriptor(
-  name='ResourcePath',
-  full_name='karps.core.ResourcePath',
-  filename=None,
-  file=DESCRIPTOR,
-  containing_type=None,
-  fields=[
-    _descriptor.FieldDescriptor(
-      name='uri', full_name='karps.core.ResourcePath.uri', index=0,
-      number=1, type=9, cpp_type=9, label=1,
-      has_default_value=False, default_value=_b("").decode('utf-8'),
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      options=None),
-  ],
-  extensions=[
-  ],
-  nested_types=[],
-  enum_types=[
-  ],
-  options=None,
-  is_extendable=False,
-  syntax='proto3',
-  extension_ranges=[],
-  oneofs=[
-  ],
-  serialized_start=694,
-  serialized_end=721,
-)
-
-
 _COMPUTATIONID = _descriptor.Descriptor(
   name='ComputationId',
   full_name='karps.core.ComputationId',
@@ -351,8 +320,8 @@ _COMPUTATIONID = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=723,
-  serialized_end=750,
+  serialized_start=694,
+  serialized_end=721,
 )
 
 
@@ -382,8 +351,8 @@ _SESSIONID = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=752,
-  serialized_end=775,
+  serialized_start=723,
+  serialized_end=746,
 )
 
 _COMPUTATIONRESULT.fields_by_name['local_path'].message_type = karps_dot_proto_dot_graph__pb2._PATH
@@ -401,7 +370,6 @@ DESCRIPTOR.message_types_by_name['BatchComputationResult'] = _BATCHCOMPUTATIONRE
 DESCRIPTOR.message_types_by_name['PointerPath'] = _POINTERPATH
 DESCRIPTOR.message_types_by_name['SparkStats'] = _SPARKSTATS
 DESCRIPTOR.message_types_by_name['RDDInfo'] = _RDDINFO
-DESCRIPTOR.message_types_by_name['ResourcePath'] = _RESOURCEPATH
 DESCRIPTOR.message_types_by_name['ComputationId'] = _COMPUTATIONID
 DESCRIPTOR.message_types_by_name['SessionId'] = _SESSIONID
 DESCRIPTOR.enum_types_by_name['ResultStatus'] = _RESULTSTATUS
@@ -441,13 +409,6 @@ RDDInfo = _reflection.GeneratedProtocolMessageType('RDDInfo', (_message.Message,
   # @@protoc_insertion_point(class_scope:karps.core.RDDInfo)
   ))
 _sym_db.RegisterMessage(RDDInfo)
-
-ResourcePath = _reflection.GeneratedProtocolMessageType('ResourcePath', (_message.Message,), dict(
-  DESCRIPTOR = _RESOURCEPATH,
-  __module__ = 'karps.proto.computation_pb2'
-  # @@protoc_insertion_point(class_scope:karps.core.ResourcePath)
-  ))
-_sym_db.RegisterMessage(ResourcePath)
 
 ComputationId = _reflection.GeneratedProtocolMessageType('ComputationId', (_message.Message,), dict(
   DESCRIPTOR = _COMPUTATIONID,

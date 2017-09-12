@@ -21,7 +21,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   name='karps/proto/graph.proto',
   package='karps.core',
   syntax='proto3',
-  serialized_pb=_b('\n\x17karps/proto/graph.proto\x12\nkarps.core\x1a\x17karps/proto/types.proto\"\x84\x02\n\x04Node\x12&\n\x08locality\x18\x01 \x01(\x0e\x32\x14.karps.core.Locality\x12\x1e\n\x04path\x18\x02 \x01(\x0b\x32\x10.karps.core.Path\x12\x0f\n\x07op_name\x18\x03 \x01(\t\x12%\n\x08op_extra\x18\x04 \x01(\x0b\x32\x13.karps.core.OpExtra\x12!\n\x07parents\x18\x05 \x03(\x0b\x32\x10.karps.core.Path\x12.\n\x14logical_dependencies\x18\x06 \x03(\x0b\x32\x10.karps.core.Path\x12)\n\x0cinfered_type\x18\x07 \x01(\x0b\x32\x13.karps.core.SQLType\"(\n\x05Graph\x12\x1f\n\x05nodes\x18\x01 \x03(\x0b\x32\x10.karps.core.Node\"\x14\n\x04Path\x12\x0c\n\x04path\x18\x01 \x03(\t\"\x1a\n\x07OpExtra\x12\x0f\n\x07\x63ontent\x18\x01 \x01(\t*&\n\x08Locality\x12\t\n\x05LOCAL\x10\x00\x12\x0f\n\x0b\x44ISTRIBUTED\x10\x01\x62\x06proto3')
+  serialized_pb=_b('\n\x17karps/proto/graph.proto\x12\nkarps.core\x1a\x17karps/proto/types.proto\"\x84\x02\n\x04Node\x12&\n\x08locality\x18\x01 \x01(\x0e\x32\x14.karps.core.Locality\x12\x1e\n\x04path\x18\x02 \x01(\x0b\x32\x10.karps.core.Path\x12\x0f\n\x07op_name\x18\x03 \x01(\t\x12%\n\x08op_extra\x18\x04 \x01(\x0b\x32\x13.karps.core.OpExtra\x12!\n\x07parents\x18\x05 \x03(\x0b\x32\x10.karps.core.Path\x12.\n\x14logical_dependencies\x18\x06 \x03(\x0b\x32\x10.karps.core.Path\x12)\n\x0cinfered_type\x18\x07 \x01(\x0b\x32\x13.karps.core.SQLType\"(\n\x05Graph\x12\x1f\n\x05nodes\x18\x01 \x03(\x0b\x32\x10.karps.core.Node\"\x14\n\x04Path\x12\x0c\n\x04path\x18\x01 \x03(\t\"I\n\x07OpExtra\x12\x0f\n\x07\x63ontent\x18\x01 \x01(\x0c\x12\x15\n\rcontent_debug\x18\x02 \x01(\t\x12\x16\n\x0e\x63ontent_base64\x18\x03 \x01(\t\"\x84\x01\n\x15\x43ompilationPhaseGraph\x12\x12\n\nphase_name\x18\x01 \x01(\t\x12 \n\x05graph\x18\x02 \x01(\x0b\x32\x11.karps.core.Graph\x12\x1e\n\x16graph_tensorboard_repr\x18\x03 \x01(\t\x12\x15\n\rerror_message\x18\x04 \x01(\t*&\n\x08Locality\x12\t\n\x05LOCAL\x10\x00\x12\x0f\n\x0b\x44ISTRIBUTED\x10\x01\x62\x06proto3')
   ,
   dependencies=[karps_dot_proto_dot_types__pb2.DESCRIPTOR,])
 
@@ -42,8 +42,8 @@ _LOCALITY = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   options=None,
-  serialized_start=419,
-  serialized_end=457,
+  serialized_start=601,
+  serialized_end=639,
 )
 _sym_db.RegisterEnumDescriptor(_LOCALITY)
 
@@ -197,7 +197,21 @@ _OPEXTRA = _descriptor.Descriptor(
   fields=[
     _descriptor.FieldDescriptor(
       name='content', full_name='karps.core.OpExtra.content', index=0,
-      number=1, type=9, cpp_type=9, label=1,
+      number=1, type=12, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b(""),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='content_debug', full_name='karps.core.OpExtra.content_debug', index=1,
+      number=2, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='content_base64', full_name='karps.core.OpExtra.content_base64', index=2,
+      number=3, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
@@ -215,7 +229,59 @@ _OPEXTRA = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=391,
-  serialized_end=417,
+  serialized_end=464,
+)
+
+
+_COMPILATIONPHASEGRAPH = _descriptor.Descriptor(
+  name='CompilationPhaseGraph',
+  full_name='karps.core.CompilationPhaseGraph',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='phase_name', full_name='karps.core.CompilationPhaseGraph.phase_name', index=0,
+      number=1, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='graph', full_name='karps.core.CompilationPhaseGraph.graph', index=1,
+      number=2, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='graph_tensorboard_repr', full_name='karps.core.CompilationPhaseGraph.graph_tensorboard_repr', index=2,
+      number=3, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='error_message', full_name='karps.core.CompilationPhaseGraph.error_message', index=3,
+      number=4, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=467,
+  serialized_end=599,
 )
 
 _NODE.fields_by_name['locality'].enum_type = _LOCALITY
@@ -225,10 +291,12 @@ _NODE.fields_by_name['parents'].message_type = _PATH
 _NODE.fields_by_name['logical_dependencies'].message_type = _PATH
 _NODE.fields_by_name['infered_type'].message_type = karps_dot_proto_dot_types__pb2._SQLTYPE
 _GRAPH.fields_by_name['nodes'].message_type = _NODE
+_COMPILATIONPHASEGRAPH.fields_by_name['graph'].message_type = _GRAPH
 DESCRIPTOR.message_types_by_name['Node'] = _NODE
 DESCRIPTOR.message_types_by_name['Graph'] = _GRAPH
 DESCRIPTOR.message_types_by_name['Path'] = _PATH
 DESCRIPTOR.message_types_by_name['OpExtra'] = _OPEXTRA
+DESCRIPTOR.message_types_by_name['CompilationPhaseGraph'] = _COMPILATIONPHASEGRAPH
 DESCRIPTOR.enum_types_by_name['Locality'] = _LOCALITY
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
 
@@ -259,6 +327,13 @@ OpExtra = _reflection.GeneratedProtocolMessageType('OpExtra', (_message.Message,
   # @@protoc_insertion_point(class_scope:karps.core.OpExtra)
   ))
 _sym_db.RegisterMessage(OpExtra)
+
+CompilationPhaseGraph = _reflection.GeneratedProtocolMessageType('CompilationPhaseGraph', (_message.Message,), dict(
+  DESCRIPTOR = _COMPILATIONPHASEGRAPH,
+  __module__ = 'karps.proto.graph_pb2'
+  # @@protoc_insertion_point(class_scope:karps.core.CompilationPhaseGraph)
+  ))
+_sym_db.RegisterMessage(CompilationPhaseGraph)
 
 
 try:
