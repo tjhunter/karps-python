@@ -2,6 +2,7 @@
 
 import grpc
 from google.protobuf.json_format import MessageToJson
+import logging
 
 from .proto import types_pb2
 from .proto import interface_pb2_grpc
@@ -13,6 +14,8 @@ from .computation import Computation
 from .column import AbstractNode
 
 __all__ = ['Session', 'session']
+
+logger = logging.getLogger('karps')
 
 class Session(object):
   """ A session in Karps.
@@ -66,7 +69,7 @@ class Session(object):
     paths = [an.path for an in fetches]
     paths_proto = [an.path._proto for an in fetches]
     g = _build_graph(fetches)
-    print("compute: ", g)
+    logger.debug("compute graph: %s", str(g))
     # The data looks good, opening a channel with the backend.
     self.computation_counter += 1
     session_id = SessionId(id=self.name)
@@ -99,7 +102,10 @@ def _check_list(x):
 def _build_node(an):
   # an: an AbstractNode
   extra_bytes = an.op_extra.SerializeToString() if an.op_extra is not None else None
-  extra = graph_pb2.OpExtra(content=extra_bytes)
+  extra_str = str(an.op_extra).replace("\n", "") if an.op_extra is not None else None
+  extra = graph_pb2.OpExtra(
+    content=extra_bytes,
+    content_debug=extra_str)
   return graph_pb2.Node(
     locality=graph_pb2.DISTRIBUTED if an.is_distributed else graph_pb2.LOCAL,
     path = an.path._proto,

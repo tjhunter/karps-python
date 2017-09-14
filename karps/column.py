@@ -87,8 +87,9 @@ class AbstractNode(object):
     return self._logical_dependencies
 
   def __repr__(self):
-    return "{p}@{o}:{dt}".format(
+    return "{p}{l}{o}:{dt}".format(
       p=str(self.path),
+      l="!" if self.is_local else "@",
       o=self.op_name,
       dt=str(self.type))
 
@@ -163,13 +164,16 @@ class DataFrame(AbstractColumn, AbstractNode):
       parents=None, # List of nodes
       deps=None, # List of nodes
       path=None,
+      # string, a name hint that is more informative than the op name if no path or path extra
+      # is provided.
+      op_name_hint=None,
       path_extra=None): # Path
     AbstractColumn.__init__(self)
     AbstractNode.__init__(self)
     self._op_name = op_name
     self._type_p = _type_as_proto(type_p)
     if path is None:
-      path = _build_path(path_extra, op_name, current_path())
+      path = _build_path(path_extra, op_name_hint, op_name, current_path())
     self._path = path
     self._op_extra_p = op_extra_p
     self._parents = _as_nodes(parents)
@@ -205,12 +209,15 @@ class Observable(AbstractNode):
       parents=None, # List of nodes
       deps=None, # List of nodes
       path=None, # A path object
+      # string, a name hint that is more informative than the op name if no path or path extra
+      # is provided.
+      op_name_hint=None,
       path_extra=None): # Path
     AbstractNode.__init__(self)
     self._op_name = op_name
     self._type_p = _type_as_proto(type_p)
     if path is None:
-      path = _build_path(path_extra, op_name, current_path())
+      path = _build_path(path_extra, op_name_hint, op_name, current_path())
     self._path = path
     self._op_extra_p = op_extra_p
     self._parents = _as_nodes(parents)
@@ -235,24 +242,32 @@ def dataframe(obj, schema=None, name=None):
 
   If a schema is provided, the data will be checked for matching the types.
   """
-  # If we are provided a schema, lists will be interpreted as tuples:
-  if isinstance(obj, list) and schema is not None:
-    obj = [tuple(z) if isinstance(z, list) else z for z in obj]
-  if isinstance(schema, str):
-    schema = [schema]
-  if isinstance(schema, DataType):
+  # If we are provided with something schema-like, use it:
+  if schema is not None:
+    # Build an object that can be used as a schema.
+    # This schema may be invalid but this is fine here.
+    if isinstance(schema, str):
+      schema = [schema]
+    if isinstance(schema, list):
+      # Take this list of assumed strings, and put them into a structure.
+      def f(elt):
+        assert isinstance(elt, str), (type(elt), elt)
+        # Unknown field type, but we fix the field name.
+        return types_pb2.StructField(field_name=elt, field_type=None)
+      st_p = types_pb2.StructType(fields=[f(s) for s in schema])
+      schema_p = types_pb2.SQLType(
+        array_type=types_pb2.SQLType(struct_type=st_p, nullable=False),
+        nullable=False)
+      schema = DataType(schema_p)
+    assert isinstance(schema, DataType), (type(schema), schema)
     cwt = as_cell(obj, schema=schema)
   else:
-    # Use full inference
+    # Use full inference to get the type of the data.
+    # In this case, we must have at least one element.
+    assert len(obj) > 0, "object has zero length: %s" % obj
     cwt = as_cell(obj, schema=None)
   assert cwt.type.is_array_type, cwt.type
   ct_proto = cwt.type.inner_type._proto
-  # Try to get nicer names for the columns
-  if isinstance(schema, list):
-    assert ct_proto.HasField('struct_type'), ct_proto
-    assert len(schema) == len(ct_proto.struct_type.fields), (schema, ct_proto)
-    for (fname, f) in zip(schema, ct_proto.struct_type.fields):
-      f.field_name = fname
   return DataFrame(
     op_name="org.spark.DistributedLiteral",
     op_extra_p=cwt._proto,
@@ -283,25 +298,28 @@ def _convert(name):
     s1 = re.sub('(.)([A-Z][a-z]+)', r'\1_\2', name)
     return re.sub('([a-z0-9])([A-Z])', r'\1_\2', s1).lower()
 
-def _build_path(requested_name, op_name, curr_path):
+def _build_path(requested_name, op_name_hint, op_name, curr_path):
   if not requested_name:
+    # Use the name hint is available, or the name of the operation as a last resort.
+    name_base = op_name_hint or op_name.split(".")[-1]
     counter = get_and_increment_counter()
-    requested_name = _convert(op_name.split(".")[-1]) + "_" + str(counter)
+    requested_name = _convert(name_base) + "_" + str(counter)
   requested_path = curr_path.push(requested_name)
   return requested_path
 
 def _col_op_proto(c):
-  res = st_pb2.ColumnStructure(field_name=c._field_name)
+  res = st_pb2.Column(field_name=c._field_name)
   if c._struct is not None:
     assert c._struct, c # Should not be empty
     res.struct.fields = [_col_op_proto(c2) for c2 in c._struct]
     for f in res.struct.fields:
       assert f.field_name, (f, c, res)
   elif c._function_name is not None:
+    res.function.CopyFrom()
     res.function.function_name = c._function_name
     res.function.inputs = [_col_op_proto(c2) for c2 in c._function_deps]
   elif c._extraction is not None:
-    res.extraction.path = c._extraction
+    res.extraction.CopyFrom(st_pb2.ColumnExtraction(path=c._extraction))
   else:
     assert False, c # Should not reach this point
   return res

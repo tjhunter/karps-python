@@ -22,7 +22,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   name='karps/proto/interface.proto',
   package='karps.core',
   syntax='proto3',
-  serialized_pb=_b('\n\x1bkarps/proto/interface.proto\x12\nkarps.core\x1a\x17karps/proto/graph.proto\x1a\x14karps/proto/io.proto\x1a\x1dkarps/proto/computation.proto\"H\n\x14\x43reateSessionRequest\x12\x30\n\x11requested_session\x18\x01 \x01(\x0b\x32\x15.karps.core.SessionId\"\x17\n\x15\x43reateSessionResponse\"\xc9\x01\n\x18\x43reateComputationRequest\x12&\n\x07session\x18\x01 \x01(\x0b\x32\x15.karps.core.SessionId\x12 \n\x05graph\x18\x03 \x01(\x0b\x32\x11.karps.core.Graph\x12\x38\n\x15requested_computation\x18\x04 \x01(\x0b\x32\x19.karps.core.ComputationId\x12)\n\x0frequested_paths\x18\x05 \x03(\x0b\x32\x10.karps.core.Path\"\x1b\n\x19\x43reateComputationResponse\"\x9d\x01\n\x18\x43omputationStatusRequest\x12&\n\x07session\x18\x01 \x01(\x0b\x32\x15.karps.core.SessionId\x12.\n\x0b\x63omputation\x18\x02 \x01(\x0b\x32\x19.karps.core.ComputationId\x12)\n\x0frequested_paths\x18\x03 \x03(\x0b\x32\x10.karps.core.Path\"\xc7\x02\n\x19\x43omputationStreamResponse\x12&\n\x07session\x18\x01 \x01(\x0b\x32\x15.karps.core.SessionId\x12.\n\x0b\x63omputation\x18\x02 \x01(\x0b\x32\x19.karps.core.ComputationId\x12(\n\x0bstart_graph\x18\x03 \x01(\x0b\x32\x11.karps.core.GraphH\x00\x12)\n\x0cpinned_graph\x18\x04 \x01(\x0b\x32\x11.karps.core.GraphH\x00\x12\x35\n\x07results\x18\x05 \x01(\x0b\x32\".karps.core.BatchComputationResultH\x00\x12;\n\x12\x63ompilation_result\x18\x06 \x01(\x0b\x32\x1d.karps.core.CompilationResultH\x00\x42\t\n\x07updates\"`\n\x11\x43ompilationResult\x12\r\n\x05\x65rror\x18\x01 \x01(\t\x12<\n\x11\x63ompilation_graph\x18\x02 \x03(\x0b\x32!.karps.core.CompilationPhaseGraph2\xcb\x01\n\tKarpsMain\x12T\n\rCreateSession\x12 .karps.core.CreateSessionRequest\x1a!.karps.core.CreateSessionResponse\x12h\n\x17StreamCreateComputation\x12$.karps.core.CreateComputationRequest\x1a%.karps.core.ComputationStreamResponse0\x01\x62\x06proto3')
+  serialized_pb=_b('\n\x1bkarps/proto/interface.proto\x12\nkarps.core\x1a\x17karps/proto/graph.proto\x1a\x14karps/proto/io.proto\x1a\x1dkarps/proto/computation.proto\"H\n\x14\x43reateSessionRequest\x12\x30\n\x11requested_session\x18\x01 \x01(\x0b\x32\x15.karps.core.SessionId\"\x17\n\x15\x43reateSessionResponse\"\xc9\x01\n\x18\x43reateComputationRequest\x12&\n\x07session\x18\x01 \x01(\x0b\x32\x15.karps.core.SessionId\x12 \n\x05graph\x18\x03 \x01(\x0b\x32\x11.karps.core.Graph\x12\x38\n\x15requested_computation\x18\x04 \x01(\x0b\x32\x19.karps.core.ComputationId\x12)\n\x0frequested_paths\x18\x05 \x03(\x0b\x32\x10.karps.core.Path\"\x1b\n\x19\x43reateComputationResponse\"\x9d\x01\n\x18\x43omputationStatusRequest\x12&\n\x07session\x18\x01 \x01(\x0b\x32\x15.karps.core.SessionId\x12.\n\x0b\x63omputation\x18\x02 \x01(\x0b\x32\x19.karps.core.ComputationId\x12)\n\x0frequested_paths\x18\x03 \x03(\x0b\x32\x10.karps.core.Path\"\xb4\x02\n\x19\x43omputationStreamResponse\x12&\n\x07session\x18\x01 \x01(\x0b\x32\x15.karps.core.SessionId\x12.\n\x0b\x63omputation\x18\x02 \x01(\x0b\x32\x19.karps.core.ComputationId\x12&\n\x0bstart_graph\x18\x03 \x01(\x0b\x32\x11.karps.core.Graph\x12\'\n\x0cpinned_graph\x18\x04 \x01(\x0b\x32\x11.karps.core.Graph\x12\x33\n\x07results\x18\x05 \x01(\x0b\x32\".karps.core.BatchComputationResult\x12\x39\n\x12\x63ompilation_result\x18\x06 \x01(\x0b\x32\x1d.karps.core.CompilationResult\"`\n\x11\x43ompilationResult\x12\r\n\x05\x65rror\x18\x01 \x01(\t\x12<\n\x11\x63ompilation_graph\x18\x02 \x03(\x0b\x32!.karps.core.CompilationPhaseGraph2\xcb\x01\n\tKarpsMain\x12T\n\rCreateSession\x12 .karps.core.CreateSessionRequest\x1a!.karps.core.CreateSessionResponse\x12h\n\x17StreamCreateComputation\x12$.karps.core.CreateComputationRequest\x1a%.karps.core.ComputationStreamResponse0\x01\x62\x06proto3')
   ,
   dependencies=[karps_dot_proto_dot_graph__pb2.DESCRIPTOR,karps_dot_proto_dot_io__pb2.DESCRIPTOR,karps_dot_proto_dot_computation__pb2.DESCRIPTOR,])
 
@@ -265,12 +265,9 @@ _COMPUTATIONSTREAMRESPONSE = _descriptor.Descriptor(
   syntax='proto3',
   extension_ranges=[],
   oneofs=[
-    _descriptor.OneofDescriptor(
-      name='updates', full_name='karps.core.ComputationStreamResponse.updates',
-      index=0, containing_type=None, fields=[]),
   ],
   serialized_start=614,
-  serialized_end=941,
+  serialized_end=922,
 )
 
 
@@ -307,8 +304,8 @@ _COMPILATIONRESULT = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=943,
-  serialized_end=1039,
+  serialized_start=924,
+  serialized_end=1020,
 )
 
 _CREATESESSIONREQUEST.fields_by_name['requested_session'].message_type = karps_dot_proto_dot_computation__pb2._SESSIONID
@@ -325,18 +322,6 @@ _COMPUTATIONSTREAMRESPONSE.fields_by_name['start_graph'].message_type = karps_do
 _COMPUTATIONSTREAMRESPONSE.fields_by_name['pinned_graph'].message_type = karps_dot_proto_dot_graph__pb2._GRAPH
 _COMPUTATIONSTREAMRESPONSE.fields_by_name['results'].message_type = karps_dot_proto_dot_computation__pb2._BATCHCOMPUTATIONRESULT
 _COMPUTATIONSTREAMRESPONSE.fields_by_name['compilation_result'].message_type = _COMPILATIONRESULT
-_COMPUTATIONSTREAMRESPONSE.oneofs_by_name['updates'].fields.append(
-  _COMPUTATIONSTREAMRESPONSE.fields_by_name['start_graph'])
-_COMPUTATIONSTREAMRESPONSE.fields_by_name['start_graph'].containing_oneof = _COMPUTATIONSTREAMRESPONSE.oneofs_by_name['updates']
-_COMPUTATIONSTREAMRESPONSE.oneofs_by_name['updates'].fields.append(
-  _COMPUTATIONSTREAMRESPONSE.fields_by_name['pinned_graph'])
-_COMPUTATIONSTREAMRESPONSE.fields_by_name['pinned_graph'].containing_oneof = _COMPUTATIONSTREAMRESPONSE.oneofs_by_name['updates']
-_COMPUTATIONSTREAMRESPONSE.oneofs_by_name['updates'].fields.append(
-  _COMPUTATIONSTREAMRESPONSE.fields_by_name['results'])
-_COMPUTATIONSTREAMRESPONSE.fields_by_name['results'].containing_oneof = _COMPUTATIONSTREAMRESPONSE.oneofs_by_name['updates']
-_COMPUTATIONSTREAMRESPONSE.oneofs_by_name['updates'].fields.append(
-  _COMPUTATIONSTREAMRESPONSE.fields_by_name['compilation_result'])
-_COMPUTATIONSTREAMRESPONSE.fields_by_name['compilation_result'].containing_oneof = _COMPUTATIONSTREAMRESPONSE.oneofs_by_name['updates']
 _COMPILATIONRESULT.fields_by_name['compilation_graph'].message_type = karps_dot_proto_dot_graph__pb2._COMPILATIONPHASEGRAPH
 DESCRIPTOR.message_types_by_name['CreateSessionRequest'] = _CREATESESSIONREQUEST
 DESCRIPTOR.message_types_by_name['CreateSessionResponse'] = _CREATESESSIONRESPONSE

@@ -75,77 +75,123 @@ def _as_python(c_proto, tpe_proto):
     values = [_as_python(x, t) for (x, t) in zip(c_proto.struct_value, field_types)]
     return dict(zip(field_names, values))
 
-def _as_cell(obj, tpe_proto):
-  # This is one of the most complex functions, because it tries to do the 'right' thing from
-  # the perspective of the user, which is not a fuzzy concept.
+def _as_cell_infer(obj):
+  """ Converts a python object to a proto CellWithType object, and attemps to infer the data type
+  at the same time.
+  """
   if obj is None:
-    assert tpe_proto is None or tpe_proto.nullable, (obj, tpe)
-    return row_pb2.CellWithType(cell_type=tpe_proto)
+    # No type, empty data.
+    return row_pb2.CellWithType(cell=row_pb2.Cell(), cell_type=None)
   if isinstance(obj, int):
     # Strict int
-    tpe_proto = tpe_proto or types_pb2.SQLType(basic_type=types_pb2.SQLType.INT, nullable=False)
-    assert tpe_proto.basic_type == types_pb2.SQLType.INT, tpe_proto
+    return _as_cell(obj, types_pb2.SQLType(basic_type=types_pb2.SQLType.INT, nullable=False))
+  if isinstance(obj, list):
+    # Something that looks like a list.
+    obj = list(obj)
+    # Get the inner content, and check that the types are mergeable after that.
+    l = [_as_cell_infer(x) for x in obj]
+    inner_type = _merge_proto_types([cwt.cell_type for cwt in l])
+    cells = [cwt.cell for cwt in l]
+    return row_pb2.CellWithType(
+      cell=row_pb2.Cell(array_value=row_pb2.ArrayCell(cells)),
+      cell_type=types_pb2.SQLType(array_type=types_pb2.SQLType(inner_type)))
+  if isinstance(obj, tuple):
+    # A tuple is interpreted as a dictionary with some implicit names:
+    field_names = ["_" + str(idx+1) for idx in range(len(obj))]
+    dct = dict(zip(field_names, obj))
+    return _as_cell_infer(dct)
+  if isinstance(obj, dict):
+    # It is a dictionary. This is easy, we just build a structure from the inner data.
+    cells = [_as_cell(x, None) for (_, x) in obj.items()]
+    keys = [k for (k, _) in obj.items()]
+    return _struct(cells, keys, sort=True)
+  raise Exception("Cannot understand object of type %s: %s" % (type(obj), obj))
+
+_none_proto_type = types_pb2.SQLType()
+
+def _as_cell(obj, tpe_proto):
+  """ Converts a python object to a proto CellWithType object.
+
+  obj: python object
+  tpe_proto: a proto.Type object
+  """
+  # This is one of the most complex functions, because it tries to do the 'right' thing from
+  # the perspective of the user, which is a fuzzy concept.
+  if tpe_proto is None or tpe_proto == _none_proto_type:
+    return _as_cell_infer(obj)
+  if obj is None:
+    assert tpe_proto.nullable, (obj, tpe)
+    # empty value, potentially no type either.
+    return row_pb2.CellWithType(cell=row_pb2.Cell(), cell_type=tpe_proto)
+  if isinstance(obj, int):
+    assert tpe_proto.basic_type == types_pb2.SQLType.INT, (type(tpe_proto), tpe_proto)
     return row_pb2.CellWithType(
       cell=row_pb2.Cell(int_value=int(obj)),
       cell_type=tpe_proto)
   # Something that looks like a list
-  if isinstance(obj, (list, tuple)):
-    is_tuple = isinstance(obj, tuple)
+  if isinstance(obj, (list, tuple)) and tpe_proto.HasField("array_type"):
     obj = list(obj)
-    if tpe_proto is None:
-      # Infer the type
-      if is_tuple:
-        # Interpret as a structure
-        field_names = ["_" + str(idx+1) for idx in range(len(obj))]
-        return _as_cell(dict(zip(field_names, obj)), None)
-      else:
-        # Interpret as an array cell
-        cells = [_as_cell(x, None) for x in obj]
-        # Merge all the cells into a cell array.
-        inner_type = None
-        if cells:
-          inner_type = cells[0].cell_type
-          for cwt in cells[1:]:
-            inner_type = merge_proto_types(inner_type, cwt.cell_type)
-        tpe_proto = types_pb2.SQLType(array_type=inner_type, nullable=False)
-    elif tpe_proto.HasField("array_type"):
-      # It is an array
-      cells = [_as_cell(x, tpe_proto.array_type) for x in obj]
-    elif tpe_proto.HasField("struct_type"):
-      # It is a struct, which is represented as an array.
-      field_types = [f.field_type for f in tpe_proto.struct_type.fields]
-      assert len(field_types) == len(obj), (field_types, obj)
-      cells = [_as_cell(x, ftype) for (x, ftype) in zip(obj, field_types)]
-      return row_pb2.CellWithType(
-        cell=row_pb2.Cell(struct_value=row_pb2.Row(values=cs)),
-        cell_type=tpe_proto)
-    else:
-      assert False, (tpe_proto, type(obj))
-    cs = [cwt_proto.cell for cwt_proto in cells]
+    cwt_ps = [_as_cell(x, tpe_proto.array_type) for x in obj]
+    c_ps = [cwt_p.cell for cwt_p in cwt_ps]
+    # Try to merge together the types of the inner cells. We may have some surprises here.
+    merge_type = tpe_proto.array_type
+    for cwt_p in cwt_ps:
+      merge_type = merge_proto_types(merge_type, cwt_p.cell_type)
     return row_pb2.CellWithType(
-      cell=row_pb2.Cell(array_value=row_pb2.ArrayCell(values=cs)),
-      cell_type=tpe_proto)
-  if isinstance(obj, dict):
-    if tpe_proto is None:
-      # use the keys as proxies for the names, and sort alphabetically.
-      cells = [_as_cell(x, None) for (_, x) in obj.items()]
-      keys = [k for (k, _) in obj.items()]
-      return _struct(cells, keys, sort=True)
-    else:
-      assert tpe_proto.HasField('struct_type'), tpe_proto
-      # Use the structure
-      # Exact structural matching for now.
-      fields = tpe_proto.struct_type.fields
-      assert len(obj) == len(fields), (tpe_proto, obj)
-      cells = []
-      for field in fields:
-        assert field.field_name in obj, (field, obj)
-        f_cwt = _as_cell(obj[field.field_name], field.field_type)
-        cells.append(f_cwt.cell)
-      return row_pb2.CellWithType(
-        cell=row_pb2.Cell(struct_value=row_pb2.Row(values=cells)),
-        cell_type=tpe_proto)
+      cell=row_pb2.Cell(array_value=row_pb2.ArrayCell(values=c_ps)),
+      cell_type=types_pb2.SQLType(
+        array_type=merge_type,
+        nullable = tpe_proto.nullable))
+  if isinstance(obj, dict) and tpe_proto.HasField("struct_type"):
+    fields = tpe_proto.struct_type.fields
+    assert len(obj) == len(fields), (tpe_proto, obj)
+    cells = []
+    new_fields = []
+    for field in fields:
+      assert field.field_name in obj, (field, obj)
+      # The inner type may be None, in which case, it 
+      f_cwt = _as_cell(obj[field.field_name], field.field_type)
+      cells.append(f_cwt.cell)
+      # The type may also have been updated if something got infered.
+      f = types_pb2.StructField(
+        field_name=field.field_name,
+        field_type=f_cwt.cell_type)
+      new_fields.append(f)
+    return row_pb2.CellWithType(
+      cell=row_pb2.Cell(struct_value=row_pb2.Row(values=cells)),
+      cell_type=types_pb2.SQLType(
+        struct_type=types_pb2.StructType(fields=new_fields),
+        nullable=tpe_proto.nullable))
+  if isinstance(obj, (list, tuple)) and tpe_proto.HasField("struct_type"):
+    # Treat it as a dictionary, for which the user has not specified the name of the fields.
+    obj = list(obj)
+    fields = tpe_proto.struct_type.fields
+    assert len(obj) == len(fields), (tpe_proto, obj)
+    cells = []
+    new_fields = []
+    for field, x in zip(fields, obj):
+      # The inner type may be None, in which case, it 
+      f_cwt = _as_cell(x, field.field_type)
+      cells.append(f_cwt.cell)
+      # The type may also have been updated if something got infered.
+      f = types_pb2.StructField(
+        field_name=field.field_name,
+        field_type=f_cwt.cell_type)
+      new_fields.append(f)
+    return row_pb2.CellWithType(
+      cell=row_pb2.Cell(struct_value=row_pb2.Row(values=cells)),
+      cell_type=types_pb2.SQLType(
+        struct_type=types_pb2.StructType(fields=new_fields),
+        nullable=tpe_proto.nullable))
 
+def _merge_proto_types(l):
+  res = None
+  for t_p in l:
+    if res is None:
+      res = t_p
+    else:
+      res = merge_proto_types(res, t_p)
+  return res
 
 def _struct(cwts, field_names, sort=False):
   assert len(cwts) == len(field_names)

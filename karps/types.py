@@ -43,6 +43,10 @@ class DataType(AbstractProtoWrapper):
     assert self.is_struct_type, self
     return [StructField(x) for x in self._proto.struct_type.fields]
 
+  @property
+  def to_proto(self):
+    return self._proto
+
 
 class StructField(AbstractProtoWrapper):
   """ A field in a struct.
@@ -94,21 +98,21 @@ _none_proto_type = pb.SQLType()
 def merge_proto_types(tp1, tp2):
   """ Attempts to merge two types (in proto)
   """
-  tp1 = tp1 or _none_proto_type
-  tp2 = tp2 or _none_proto_type
+  if tp1 is None and tp2 is None:
+    return _none_proto_type
+  if tp1 is None:
+    return tp2
+  if tp2 is None:
+    return tp1
   if tp1 == _none_proto_type and tp2 == _none_proto_type:
     return _none_proto_type
   if tp2 == _none_proto_type:
-    return merge_proto_types(_none_proto_type, tp1)
+    return tp1
   if tp1 == _none_proto_type:
-    assert tp2 != _none_proto_type
-    tp = pb.SQLType()
-    tp.CopyFrom(tp2)
-    tp.nullable = True
-    return tp
+    return tp2
   if tp1 == tp2:
     return tp1
-  if tp1.basic_type != _none_proto_type:
+  if tp1.HasField("basic_type") and tp2.HasField("basic_type"):
     assert tp1.basic_type == tp2.basic_type, (tp1, tp2)
     return pb.SQLType(
       basic_type = tp1.basic_type,
@@ -119,7 +123,7 @@ def merge_proto_types(tp1, tp2):
       array_type=merge_proto_types(tp1.array_type, tp2.array_type),
       nullable=tp1.nullable or tp2.nullable)
   if tp1.HasField('struct_type'):
-    assert tp2.HasField('struct_type')
+    assert tp2.HasField('struct_type'), (tp1, tp2)
     l1 = tp1.struct_type.fields
     l2 = tp2.struct_type.fields
     assert len(l1) == len(l2), (l1, l2)
@@ -131,7 +135,7 @@ def merge_proto_types(tp1, tp2):
     return pb.SQLType(
       struct_type=pb.StructType(fields=l),
       nullable=tp1.nullable or tp2.nullable)
-  assert False, (tp1, tp2)
+  raise Exception("Cannot merge incompatible types %s and %s" % (tp1, tp2))
 
 
 def _repr_proto(p):

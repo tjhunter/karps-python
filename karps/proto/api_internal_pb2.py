@@ -25,7 +25,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   name='karps/proto/api_internal.proto',
   package='karps.core',
   syntax='proto3',
-  serialized_pb=_b('\n\x1ekarps/proto/api_internal.proto\x12\nkarps.core\x1a\x1dkarps/proto/computation.proto\x1a\x17karps/proto/graph.proto\x1a\x1bkarps/proto/interface.proto\x1a\x14karps/proto/io.proto\x1a%tensorflow/core/framework/graph.proto\"\xae\x02\n\x15PerformGraphTransform\x12&\n\x07session\x18\x01 \x01(\x0b\x32\x15.karps.core.SessionId\x12.\n\x0b\x63omputation\x18\x02 \x01(\x0b\x32\x19.karps.core.ComputationId\x12+\n\x10\x66unctional_graph\x18\x03 \x01(\x0b\x32\x11.karps.core.Graph\x12\x30\n\x0f\x61vailable_nodes\x18\x04 \x03(\x0b\x32\x17.karps.core.NodeMapItem\x12)\n\x0frequested_paths\x18\x05 \x03(\x0b\x32\x10.karps.core.Path\x12\x33\n\x0fknown_resources\x18\x06 \x03(\x0b\x32\x1a.karps.core.ResourceStatus\"\xc4\x01\n\x16GraphTransformResponse\x12\'\n\x0cpinned_graph\x18\x01 \x01(\x0b\x32\x11.karps.core.Graph\x12)\n\x08node_map\x18\x02 \x03(\x0b\x32\x17.karps.core.NodeMapItem\x12-\n\x08messages\x18\x03 \x03(\x0b\x32\x1b.karps.core.AnalysisMessage\x12\'\n\x05steps\x18\x04 \x03(\x0b\x32\x18.karps.core.CompilerStep\"f\n\x0eResourceStatus\x12*\n\x08resource\x18\x01 \x01(\x0b\x32\x18.karps.core.ResourcePath\x12(\n\x05stamp\x18\x02 \x01(\x0b\x32\x19.karps.core.ResourceStamp\"n\n\x17\x41nalyzeResourcesRequest\x12+\n\tresources\x18\x01 \x03(\x0b\x32\x18.karps.core.ResourcePath\x12&\n\x07session\x18\x02 \x01(\x0b\x32\x15.karps.core.SessionId\"\xd7\x01\n\x17\x41nalyzeResourceResponse\x12-\n\tsuccesses\x18\x01 \x03(\x0b\x32\x1a.karps.core.ResourceStatus\x12\x42\n\x08\x66\x61ilures\x18\x02 \x03(\x0b\x32\x30.karps.core.AnalyzeResourceResponse.FailedStatus\x1aI\n\x0c\x46\x61iledStatus\x12*\n\x08resource\x18\x01 \x01(\x0b\x32\x18.karps.core.ResourcePath\x12\r\n\x05\x65rror\x18\x02 \x01(\t\"\xa7\x01\n\x0bNodeMapItem\x12 \n\x04node\x18\x01 \x01(\x0b\x32\x12.karps.core.NodeId\x12\x1e\n\x04path\x18\x02 \x01(\x0b\x32\x10.karps.core.Path\x12.\n\x0b\x63omputation\x18\x03 \x01(\x0b\x32\x19.karps.core.ComputationId\x12&\n\x07session\x18\x04 \x01(\x0b\x32\x15.karps.core.SessionId\"\x84\x01\n\x0c\x43ompilerStep\x12)\n\x05phase\x18\x01 \x01(\x0e\x32\x1a.karps.core.CompilingPhase\x12 \n\x05graph\x18\x02 \x01(\x0b\x32\x11.karps.core.Graph\x12\'\n\tgraph_def\x18\x03 \x01(\x0b\x32\x14.tensorflow.GraphDef\"\x17\n\x06NodeId\x12\r\n\x05value\x18\x01 \x01(\t\"\xef\x01\n\x0f\x41nalysisMessage\x12.\n\x0b\x63omputation\x18\x01 \x01(\x0b\x32\x19.karps.core.ComputationId\x12&\n\x07session\x18\x02 \x01(\x0b\x32\x15.karps.core.SessionId\x12\'\n\x0brelevant_id\x18\x03 \x01(\x0b\x32\x12.karps.core.NodeId\x12\x1e\n\x04path\x18\x04 \x01(\x0b\x32\x10.karps.core.Path\x12\x0f\n\x07\x63ontent\x18\x05 \x01(\t\x12*\n\x05level\x18\x06 \x01(\x0e\x32\x1b.karps.core.MessageSeverity*\xfc\x01\n\x0e\x43ompilingPhase\x12\x0b\n\x07INITIAL\x10\x00\x12\x16\n\x12REMOVE_UNREACHABLE\x10\x01\x12\x19\n\x15\x44\x41TA_SOURCE_INSERTION\x10\x02\x12\x12\n\x0ePOINTER_SWAP_1\x10\x03\x12\x16\n\x12MERGE_AGGREGATIONS\x10\x07\x12\x14\n\x10MERGE_TRANSFORMS\x10\x08\x12\x18\n\x14MERGE_AGGREGATIONS_2\x10\t\x12\x19\n\x15\x46UNCTIONAL_FLATTENING\x10\x04\x12\x16\n\x12\x41UTOCACHE_FULLFILL\x10\x05\x12\x0f\n\x0b\x43\x41\x43HE_CHECK\x10\x06\x12\n\n\x05\x46INAL\x10\xe8\x07*3\n\x0fMessageSeverity\x12\x08\n\x04INFO\x10\x00\x12\x0b\n\x07WARNING\x10\x01\x12\t\n\x05\x46\x41TAL\x10\x02\x32\xa8\x02\n\tKarpsRest\x12`\n\x11\x43reateComputation\x12$.karps.core.CreateComputationRequest\x1a%.karps.core.CreateComputationResponse\x12]\n\x11\x43omputationStatus\x12$.karps.core.ComputationStatusRequest\x1a\".karps.core.BatchComputationResult\x12Z\n\x0eResourceStatus\x12#.karps.core.AnalyzeResourcesRequest\x1a#.karps.core.AnalyzeResourceResponseb\x06proto3')
+  serialized_pb=_b('\n\x1ekarps/proto/api_internal.proto\x12\nkarps.core\x1a\x1dkarps/proto/computation.proto\x1a\x17karps/proto/graph.proto\x1a\x1bkarps/proto/interface.proto\x1a\x14karps/proto/io.proto\x1a%tensorflow/core/framework/graph.proto\"\xae\x02\n\x15PerformGraphTransform\x12&\n\x07session\x18\x01 \x01(\x0b\x32\x15.karps.core.SessionId\x12.\n\x0b\x63omputation\x18\x02 \x01(\x0b\x32\x19.karps.core.ComputationId\x12+\n\x10\x66unctional_graph\x18\x03 \x01(\x0b\x32\x11.karps.core.Graph\x12\x30\n\x0f\x61vailable_nodes\x18\x04 \x03(\x0b\x32\x17.karps.core.NodeMapItem\x12)\n\x0frequested_paths\x18\x05 \x03(\x0b\x32\x10.karps.core.Path\x12\x33\n\x0fknown_resources\x18\x06 \x03(\x0b\x32\x1a.karps.core.ResourceStatus\"\xc4\x01\n\x16GraphTransformResponse\x12\'\n\x0cpinned_graph\x18\x01 \x01(\x0b\x32\x11.karps.core.Graph\x12)\n\x08node_map\x18\x02 \x03(\x0b\x32\x17.karps.core.NodeMapItem\x12-\n\x08messages\x18\x03 \x03(\x0b\x32\x1b.karps.core.AnalysisMessage\x12\'\n\x05steps\x18\x04 \x03(\x0b\x32\x18.karps.core.CompilerStep\"f\n\x0eResourceStatus\x12*\n\x08resource\x18\x01 \x01(\x0b\x32\x18.karps.core.ResourcePath\x12(\n\x05stamp\x18\x02 \x01(\x0b\x32\x19.karps.core.ResourceStamp\"n\n\x17\x41nalyzeResourcesRequest\x12+\n\tresources\x18\x01 \x03(\x0b\x32\x18.karps.core.ResourcePath\x12&\n\x07session\x18\x02 \x01(\x0b\x32\x15.karps.core.SessionId\"\xd7\x01\n\x17\x41nalyzeResourceResponse\x12-\n\tsuccesses\x18\x01 \x03(\x0b\x32\x1a.karps.core.ResourceStatus\x12\x42\n\x08\x66\x61ilures\x18\x02 \x03(\x0b\x32\x30.karps.core.AnalyzeResourceResponse.FailedStatus\x1aI\n\x0c\x46\x61iledStatus\x12*\n\x08resource\x18\x01 \x01(\x0b\x32\x18.karps.core.ResourcePath\x12\r\n\x05\x65rror\x18\x02 \x01(\t\"\xa7\x01\n\x0bNodeMapItem\x12 \n\x04node\x18\x01 \x01(\x0b\x32\x12.karps.core.NodeId\x12\x1e\n\x04path\x18\x02 \x01(\x0b\x32\x10.karps.core.Path\x12.\n\x0b\x63omputation\x18\x03 \x01(\x0b\x32\x19.karps.core.ComputationId\x12&\n\x07session\x18\x04 \x01(\x0b\x32\x15.karps.core.SessionId\"\x84\x01\n\x0c\x43ompilerStep\x12)\n\x05phase\x18\x01 \x01(\x0e\x32\x1a.karps.core.CompilingPhase\x12 \n\x05graph\x18\x02 \x01(\x0b\x32\x11.karps.core.Graph\x12\'\n\tgraph_def\x18\x03 \x01(\x0b\x32\x14.tensorflow.GraphDef\"\x17\n\x06NodeId\x12\r\n\x05value\x18\x01 \x01(\t\"\x8b\x02\n\x0f\x41nalysisMessage\x12.\n\x0b\x63omputation\x18\x01 \x01(\x0b\x32\x19.karps.core.ComputationId\x12&\n\x07session\x18\x02 \x01(\x0b\x32\x15.karps.core.SessionId\x12\'\n\x0brelevant_id\x18\x03 \x01(\x0b\x32\x12.karps.core.NodeId\x12\x1e\n\x04path\x18\x04 \x01(\x0b\x32\x10.karps.core.Path\x12\x0f\n\x07\x63ontent\x18\x05 \x01(\t\x12*\n\x05level\x18\x06 \x01(\x0e\x32\x1b.karps.core.MessageSeverity\x12\x1a\n\x12stack_trace_pretty\x18\x07 \x01(\t*\xfc\x01\n\x0e\x43ompilingPhase\x12\x0b\n\x07INITIAL\x10\x00\x12\x16\n\x12REMOVE_UNREACHABLE\x10\x01\x12\x19\n\x15\x44\x41TA_SOURCE_INSERTION\x10\x02\x12\x12\n\x0ePOINTER_SWAP_1\x10\x03\x12\x16\n\x12MERGE_AGGREGATIONS\x10\x07\x12\x14\n\x10MERGE_TRANSFORMS\x10\x08\x12\x18\n\x14MERGE_AGGREGATIONS_2\x10\t\x12\x19\n\x15\x46UNCTIONAL_FLATTENING\x10\x04\x12\x16\n\x12\x41UTOCACHE_FULLFILL\x10\x05\x12\x0f\n\x0b\x43\x41\x43HE_CHECK\x10\x06\x12\n\n\x05\x46INAL\x10\xe8\x07*3\n\x0fMessageSeverity\x12\x08\n\x04INFO\x10\x00\x12\x0b\n\x07WARNING\x10\x01\x12\t\n\x05\x46\x41TAL\x10\x02\x32\xa8\x02\n\tKarpsRest\x12`\n\x11\x43reateComputation\x12$.karps.core.CreateComputationRequest\x1a%.karps.core.CreateComputationResponse\x12]\n\x11\x43omputationStatus\x12$.karps.core.ComputationStatusRequest\x1a\".karps.core.BatchComputationResult\x12Z\n\x0eResourceStatus\x12#.karps.core.AnalyzeResourcesRequest\x1a#.karps.core.AnalyzeResourceResponseb\x06proto3')
   ,
   dependencies=[karps_dot_proto_dot_computation__pb2.DESCRIPTOR,karps_dot_proto_dot_graph__pb2.DESCRIPTOR,karps_dot_proto_dot_interface__pb2.DESCRIPTOR,karps_dot_proto_dot_io__pb2.DESCRIPTOR,tensorflow_dot_core_dot_framework_dot_graph__pb2.DESCRIPTOR,])
 
@@ -82,8 +82,8 @@ _COMPILINGPHASE = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   options=None,
-  serialized_start=1703,
-  serialized_end=1955,
+  serialized_start=1731,
+  serialized_end=1983,
 )
 _sym_db.RegisterEnumDescriptor(_COMPILINGPHASE)
 
@@ -109,8 +109,8 @@ _MESSAGESEVERITY = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   options=None,
-  serialized_start=1957,
-  serialized_end=2008,
+  serialized_start=1985,
+  serialized_end=2036,
 )
 _sym_db.RegisterEnumDescriptor(_MESSAGESEVERITY)
 
@@ -578,6 +578,13 @@ _ANALYSISMESSAGE = _descriptor.Descriptor(
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
+    _descriptor.FieldDescriptor(
+      name='stack_trace_pretty', full_name='karps.core.AnalysisMessage.stack_trace_pretty', index=6,
+      number=7, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
   ],
   extensions=[
   ],
@@ -591,7 +598,7 @@ _ANALYSISMESSAGE = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=1461,
-  serialized_end=1700,
+  serialized_end=1728,
 )
 
 _PERFORMGRAPHTRANSFORM.fields_by_name['session'].message_type = karps_dot_proto_dot_computation__pb2._SESSIONID
