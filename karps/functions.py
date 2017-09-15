@@ -3,23 +3,14 @@
 
 from .column import Observable
 from .types import ArrayType
-from .functions_std.utils import make_aggregator_sql, check_type_number
+from .functions_std.utils import *
 import builtins as _b
 
-__all__ = ['collect', 'max']
+__all__ = ['collect', 'max', 'inv']
 
 collect = make_aggregator_sql("collect_list", ArrayType, _b.list)
 
 max = make_aggregator_sql("max", check_type_number, _b.max)
 
-# def collect(c, name=None):
-#   return Observable("org.spark.Collect",
-#     ArrayType(c.type),
-#     parents=[c],
-#     path_extra=name)
-
-# def max(c, name=None):
-#   return Observable("org.spark.Max", c.type,
-#     parents=[c],
-#     path_extra=name)
+inv = make_transform_sql1("inv", check_type_number, lambda x: 1/x)
 

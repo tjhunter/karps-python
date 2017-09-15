@@ -23,7 +23,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   name='karps/proto/std.proto',
   package='karps.core',
   syntax='proto3',
-  serialized_pb=_b('\n\x15karps/proto/std.proto\x12\nkarps.core\x1a\x1dkarps/proto/computation.proto\x1a&karps/proto/structured_transform.proto\x1a\x17karps/proto/graph.proto\x1a\x17karps/proto/types.proto\"]\n\x0bPlaceholder\x12&\n\x08locality\x18\x01 \x01(\x0e\x32\x14.karps.core.Locality\x12&\n\tdata_type\x18\x02 \x01(\x0b\x32\x13.karps.core.SQLType\"2\n\x07Shuffle\x12\'\n\x06\x61gg_op\x18\x01 \x01(\x0b\x32\x17.karps.core.Aggregation\"9\n\x13StructuredTransform\x12\"\n\x06\x63ol_op\x18\x01 \x01(\x0b\x32\x12.karps.core.Column\";\n\x10StructuredReduce\x12\'\n\x06\x61gg_op\x18\x01 \x01(\x0b\x32\x17.karps.core.Aggregation\"\x8c\x01\n\x0cLocalPointer\x12.\n\x0b\x63omputation\x18\x01 \x01(\x0b\x32\x19.karps.core.ComputationId\x12$\n\nlocal_path\x18\x02 \x01(\x0b\x32\x10.karps.core.Path\x12&\n\tdata_type\x18\x04 \x01(\x0b\x32\x13.karps.core.SQLType\"L\n\x04Join\x12-\n\njoint_type\x18\x01 \x01(\x0e\x32\x19.karps.core.Join.JoinType\"\x15\n\x08JoinType\x12\t\n\x05INNER\x10\x00\x62\x06proto3')
+  serialized_pb=_b('\n\x15karps/proto/std.proto\x12\nkarps.core\x1a\x1dkarps/proto/computation.proto\x1a&karps/proto/structured_transform.proto\x1a\x17karps/proto/graph.proto\x1a\x17karps/proto/types.proto\"]\n\x0bPlaceholder\x12&\n\x08locality\x18\x01 \x01(\x0e\x32\x14.karps.core.Locality\x12&\n\tdata_type\x18\x02 \x01(\x0b\x32\x13.karps.core.SQLType\"2\n\x07Shuffle\x12\'\n\x06\x61gg_op\x18\x01 \x01(\x0b\x32\x17.karps.core.Aggregation\"9\n\x13StructuredTransform\x12\"\n\x06\x63ol_op\x18\x01 \x01(\x0b\x32\x12.karps.core.Column\">\n\x18LocalStructuredTransform\x12\"\n\x06\x63ol_op\x18\x01 \x01(\x0b\x32\x12.karps.core.Column\";\n\x10StructuredReduce\x12\'\n\x06\x61gg_op\x18\x01 \x01(\x0b\x32\x17.karps.core.Aggregation\"\x8c\x01\n\x0cLocalPointer\x12.\n\x0b\x63omputation\x18\x01 \x01(\x0b\x32\x19.karps.core.ComputationId\x12$\n\nlocal_path\x18\x02 \x01(\x0b\x32\x10.karps.core.Path\x12&\n\tdata_type\x18\x04 \x01(\x0b\x32\x13.karps.core.SQLType\"L\n\x04Join\x12-\n\njoint_type\x18\x01 \x01(\x0e\x32\x19.karps.core.Join.JoinType\"\x15\n\x08JoinType\x12\t\n\x05INNER\x10\x00\x62\x06proto3')
   ,
   dependencies=[karps_dot_proto_dot_computation__pb2.DESCRIPTOR,karps_dot_proto_dot_structured__transform__pb2.DESCRIPTOR,karps_dot_proto_dot_graph__pb2.DESCRIPTOR,karps_dot_proto_dot_types__pb2.DESCRIPTOR,])
 
@@ -42,8 +42,8 @@ _JOIN_JOINTYPE = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   options=None,
-  serialized_start=623,
-  serialized_end=644,
+  serialized_start=687,
+  serialized_end=708,
 )
 _sym_db.RegisterEnumDescriptor(_JOIN_JOINTYPE)
 
@@ -148,6 +148,37 @@ _STRUCTUREDTRANSFORM = _descriptor.Descriptor(
 )
 
 
+_LOCALSTRUCTUREDTRANSFORM = _descriptor.Descriptor(
+  name='LocalStructuredTransform',
+  full_name='karps.core.LocalStructuredTransform',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='col_op', full_name='karps.core.LocalStructuredTransform.col_op', index=0,
+      number=1, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=364,
+  serialized_end=426,
+)
+
+
 _STRUCTUREDREDUCE = _descriptor.Descriptor(
   name='StructuredReduce',
   full_name='karps.core.StructuredReduce',
@@ -174,8 +205,8 @@ _STRUCTUREDREDUCE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=364,
-  serialized_end=423,
+  serialized_start=428,
+  serialized_end=487,
 )
 
 
@@ -219,8 +250,8 @@ _LOCALPOINTER = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=426,
-  serialized_end=566,
+  serialized_start=490,
+  serialized_end=630,
 )
 
 
@@ -251,14 +282,15 @@ _JOIN = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=568,
-  serialized_end=644,
+  serialized_start=632,
+  serialized_end=708,
 )
 
 _PLACEHOLDER.fields_by_name['locality'].enum_type = karps_dot_proto_dot_graph__pb2._LOCALITY
 _PLACEHOLDER.fields_by_name['data_type'].message_type = karps_dot_proto_dot_types__pb2._SQLTYPE
 _SHUFFLE.fields_by_name['agg_op'].message_type = karps_dot_proto_dot_structured__transform__pb2._AGGREGATION
 _STRUCTUREDTRANSFORM.fields_by_name['col_op'].message_type = karps_dot_proto_dot_structured__transform__pb2._COLUMN
+_LOCALSTRUCTUREDTRANSFORM.fields_by_name['col_op'].message_type = karps_dot_proto_dot_structured__transform__pb2._COLUMN
 _STRUCTUREDREDUCE.fields_by_name['agg_op'].message_type = karps_dot_proto_dot_structured__transform__pb2._AGGREGATION
 _LOCALPOINTER.fields_by_name['computation'].message_type = karps_dot_proto_dot_computation__pb2._COMPUTATIONID
 _LOCALPOINTER.fields_by_name['local_path'].message_type = karps_dot_proto_dot_graph__pb2._PATH
@@ -268,6 +300,7 @@ _JOIN_JOINTYPE.containing_type = _JOIN
 DESCRIPTOR.message_types_by_name['Placeholder'] = _PLACEHOLDER
 DESCRIPTOR.message_types_by_name['Shuffle'] = _SHUFFLE
 DESCRIPTOR.message_types_by_name['StructuredTransform'] = _STRUCTUREDTRANSFORM
+DESCRIPTOR.message_types_by_name['LocalStructuredTransform'] = _LOCALSTRUCTUREDTRANSFORM
 DESCRIPTOR.message_types_by_name['StructuredReduce'] = _STRUCTUREDREDUCE
 DESCRIPTOR.message_types_by_name['LocalPointer'] = _LOCALPOINTER
 DESCRIPTOR.message_types_by_name['Join'] = _JOIN
@@ -293,6 +326,13 @@ StructuredTransform = _reflection.GeneratedProtocolMessageType('StructuredTransf
   # @@protoc_insertion_point(class_scope:karps.core.StructuredTransform)
   ))
 _sym_db.RegisterMessage(StructuredTransform)
+
+LocalStructuredTransform = _reflection.GeneratedProtocolMessageType('LocalStructuredTransform', (_message.Message,), dict(
+  DESCRIPTOR = _LOCALSTRUCTUREDTRANSFORM,
+  __module__ = 'karps.proto.std_pb2'
+  # @@protoc_insertion_point(class_scope:karps.core.LocalStructuredTransform)
+  ))
+_sym_db.RegisterMessage(LocalStructuredTransform)
 
 StructuredReduce = _reflection.GeneratedProtocolMessageType('StructuredReduce', (_message.Message,), dict(
   DESCRIPTOR = _STRUCTUREDREDUCE,

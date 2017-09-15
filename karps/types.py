@@ -88,6 +88,21 @@ def StructType(l, strict=True):
   return DataType(pb.SQLType(
     struct_type=pb.StructType(fields=l2), nullable=not strict))
 
+def make_tuple(*fields):
+  """ Takes a list of data types or fields
+  """
+  fields2 = []
+  for (idx, f) in zip(range(len(fields)), fields):
+    if isinstance(f, (StructField, pb.StructField)):
+      fields2.append(f)
+    if isinstance(f, pb.SQLType):
+      fields2.append(pd.StructField(
+        field_name="_%s" % str(idx),
+        field_type=f))
+    raise ValueError("Could not understand type %s for %s" % (type(f), f))
+  return StructType(fields2)
+
+
 def merge_types(tp1, tp2):
   """ Merges two types together.
   """

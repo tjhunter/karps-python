@@ -9,8 +9,10 @@ from .proto import structured_transform_pb2 as st_pb2
 from .row import as_cell
 from .utils import current_path, get_and_increment_counter
 from .types import DataType
+from .functions_std.error import CreationError
 
-__all__ = ['Column', 'DataFrame', 'dataframe']
+__all__ = ['Column', 'DataFrame', 'dataframe',
+ 'build_observable', 'build_dataframe']
 
 class AbstractColumn(object):
   """ A column of data.
@@ -136,9 +138,9 @@ class Column(AbstractColumn):
     This causes all the columns to be resolved and coalesced. Intermediary dataframes may
     also be created if some broadcasts need to happen.
     """
-    return DataFrame(
+    return build_dataframe(
       op_name="org.spark.TransformDistributed",
-      op_extra_p=_col_op_proto(self),
+      op_extra=_col_op_proto(self),
       type_p=self._type_p,
       parents=[self.reference] # TODO: fix when we have literals
     )
@@ -149,7 +151,7 @@ class Column(AbstractColumn):
     if self._struct:
       return "struct(" + ",".join([c._pretty_name() for c in self._struct]) + ")"
     if self._function_name:
-      return self._function_name + "(" + ",".join([c._pretty_name() for c in self._struct]) + ")"
+      return self._function_name + "(" + ",".join([c._pretty_name() for c in self._function_deps]) + ")"
     raise None
 
 
@@ -159,25 +161,19 @@ class DataFrame(AbstractColumn, AbstractNode):
 
   def __init__(self,
       op_name, # String
-      type_p, # SQLType
-      op_extra_p=None, # proto for extra of the op
-      parents=None, # List of nodes
-      deps=None, # List of nodes
-      path=None,
-      # string, a name hint that is more informative than the op name if no path or path extra
-      # is provided.
-      op_name_hint=None,
-      path_extra=None): # Path
+      type_p, # proto SQLType
+      op_extra_p, # (optional) proto for extra of the op
+      parents, # List of nodes
+      deps, # List of nodes
+      path): # Path
     AbstractColumn.__init__(self)
     AbstractNode.__init__(self)
     self._op_name = op_name
-    self._type_p = _type_as_proto(type_p)
-    if path is None:
-      path = _build_path(path_extra, op_name_hint, op_name, current_path())
+    self._type_p = type_p
     self._path = path
     self._op_extra_p = op_extra_p
-    self._parents = _as_nodes(parents)
-    self._logical_dependencies = _as_nodes(deps)
+    self._parents = parents
+    self._logical_dependencies = deps
     self._is_distributed = True
 
   @property
@@ -200,28 +196,25 @@ class DataFrame(AbstractColumn, AbstractNode):
 
 class Observable(AbstractNode):
   """ An observable.
+
+  Do not call the constructor, use build_observable() instead.
   """
 
   def __init__(self,
       op_name, # String
-      type_p, # SQLType
-      op_extra_p=None, # proto for extra of the op
-      parents=None, # List of nodes
-      deps=None, # List of nodes
-      path=None, # A path object
-      # string, a name hint that is more informative than the op name if no path or path extra
-      # is provided.
-      op_name_hint=None,
-      path_extra=None): # Path
+      type_p, # (proto SQLType)
+      op_extra_p, # (nullable) proto for extra of the op 
+      parents, # List of nodes
+      deps, # List of nodes
+      path # A path object
+      ): # Path
     AbstractNode.__init__(self)
     self._op_name = op_name
-    self._type_p = _type_as_proto(type_p)
-    if path is None:
-      path = _build_path(path_extra, op_name_hint, op_name, current_path())
+    self._type_p = type_p
     self._path = path
     self._op_extra_p = op_extra_p
-    self._parents = _as_nodes(parents)
-    self._logical_dependencies = _as_nodes(deps)
+    self._parents = parents
+    self._logical_dependencies = deps
     self._is_distributed = False
 
 def dataframe(obj, schema=None, name=None):
@@ -268,11 +261,41 @@ def dataframe(obj, schema=None, name=None):
     cwt = as_cell(obj, schema=None)
   assert cwt.type.is_array_type, cwt.type
   ct_proto = cwt.type.inner_type._proto
-  return DataFrame(
+  return build_dataframe(
     op_name="org.spark.DistributedLiteral",
-    op_extra_p=cwt._proto,
+    op_extra=cwt._proto,
     type_p=ct_proto,
     path_extra=name)
+
+def build_dataframe(
+  op_name, type_p, op_extra=None, parents=None, deps=None, 
+  name_hint=None, path=None, path_extra=None):
+  """ (developer) builds a dataframe.
+  """
+  if path is None:
+    path = _build_path(path_extra, name_hint, op_name, current_path())
+  return DataFrame(
+    op_name = op_name,
+    type_p = _type_as_proto(type_p),
+    op_extra_p = op_extra,
+    parents=_as_nodes(parents),
+    deps=_as_nodes(deps),
+    path=path)
+
+def build_observable(
+  op_name, type_p, op_extra=None, parents=None, deps=None, 
+  name_hint=None, path=None, path_extra=None):
+  """ (developer) builds an observable.
+  """
+  if path is None:
+    path = _build_path(path_extra, name_hint, op_name, current_path())
+  return Observable(
+    op_name = op_name,
+    type_p = _type_as_proto(type_p),
+    op_extra_p = op_extra,
+    parents=_as_nodes(parents),
+    deps=_as_nodes(deps),
+    path=path)
 
 def _type_as_proto(tpe):
   if isinstance(tpe, DataType):
@@ -291,7 +314,7 @@ def _as_nodes(l):
     elif isinstance(x, Column):
       res.append(x.as_dataframe())
     else:
-      assert False, (type(x), x)
+      raise CreationError("Expected AbstractNode or Column, but got %s type instead: %s" % (type(x), x))
   return res
 
 def _convert(name):
