@@ -19,7 +19,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   name='karps/proto/structured_transform.proto',
   package='karps.core',
   syntax='proto3',
-  serialized_pb=_b('\n&karps/proto/structured_transform.proto\x12\nkarps.core\"\xba\x01\n\x06\x43olumn\x12-\n\x06struct\x18\x01 \x01(\x0b\x32\x1b.karps.core.ColumnStructureH\x00\x12.\n\x08\x66unction\x18\x02 \x01(\x0b\x32\x1a.karps.core.ColumnFunctionH\x00\x12\x32\n\nextraction\x18\x03 \x01(\x0b\x32\x1c.karps.core.ColumnExtractionH\x00\x12\x12\n\nfield_name\x18\n \x01(\tB\t\n\x07\x63ontent\"5\n\x0f\x43olumnStructure\x12\"\n\x06\x66ields\x18\x01 \x03(\x0b\x32\x12.karps.core.Column\"K\n\x0e\x43olumnFunction\x12\x15\n\rfunction_name\x18\x01 \x01(\t\x12\"\n\x06inputs\x18\x02 \x03(\x0b\x32\x12.karps.core.Column\" \n\x10\x43olumnExtraction\x12\x0c\n\x04path\x18\x01 \x03(\t\"\x8e\x01\n\x0b\x41ggregation\x12-\n\x02op\x18\x01 \x01(\x0b\x32\x1f.karps.core.AggregationFunctionH\x00\x12\x32\n\x06struct\x18\x02 \x01(\x0b\x32 .karps.core.AggregationStructureH\x00\x12\x12\n\nfield_name\x18\x03 \x01(\tB\x08\n\x06\x61gg_op\"Z\n\x13\x41ggregationFunction\x12\x15\n\rfunction_name\x18\x01 \x01(\t\x12,\n\x06inputs\x18\x02 \x03(\x0b\x32\x1c.karps.core.ColumnExtraction\"?\n\x14\x41ggregationStructure\x12\'\n\x06\x66ields\x18\x01 \x03(\x0b\x32\x17.karps.core.Aggregationb\x06proto3')
+  serialized_pb=_b('\n&karps/proto/structured_transform.proto\x12\nkarps.core\"\xf6\x01\n\x06\x43olumn\x12-\n\x06struct\x18\x01 \x01(\x0b\x32\x1b.karps.core.ColumnStructureH\x00\x12.\n\x08\x66unction\x18\x02 \x01(\x0b\x32\x1a.karps.core.ColumnFunctionH\x00\x12\x32\n\nextraction\x18\x03 \x01(\x0b\x32\x1c.karps.core.ColumnExtractionH\x00\x12:\n\tbroadcast\x18\x04 \x01(\x0b\x32%.karps.core.ColumnBroadcastObservableH\x00\x12\x12\n\nfield_name\x18\n \x01(\tB\t\n\x07\x63ontent\"5\n\x19\x43olumnBroadcastObservable\x12\x18\n\x10observable_index\x18\x01 \x01(\x05\"5\n\x0f\x43olumnStructure\x12\"\n\x06\x66ields\x18\x01 \x03(\x0b\x32\x12.karps.core.Column\"K\n\x0e\x43olumnFunction\x12\x15\n\rfunction_name\x18\x01 \x01(\t\x12\"\n\x06inputs\x18\x02 \x03(\x0b\x32\x12.karps.core.Column\" \n\x10\x43olumnExtraction\x12\x0c\n\x04path\x18\x01 \x03(\t\"\x8e\x01\n\x0b\x41ggregation\x12-\n\x02op\x18\x01 \x01(\x0b\x32\x1f.karps.core.AggregationFunctionH\x00\x12\x32\n\x06struct\x18\x02 \x01(\x0b\x32 .karps.core.AggregationStructureH\x00\x12\x12\n\nfield_name\x18\x03 \x01(\tB\x08\n\x06\x61gg_op\"Z\n\x13\x41ggregationFunction\x12\x15\n\rfunction_name\x18\x01 \x01(\t\x12,\n\x06inputs\x18\x02 \x03(\x0b\x32\x1c.karps.core.ColumnExtraction\"?\n\x14\x41ggregationStructure\x12\'\n\x06\x66ields\x18\x01 \x03(\x0b\x32\x17.karps.core.Aggregationb\x06proto3')
 )
 
 
@@ -54,7 +54,14 @@ _COLUMN = _descriptor.Descriptor(
       is_extension=False, extension_scope=None,
       options=None),
     _descriptor.FieldDescriptor(
-      name='field_name', full_name='karps.core.Column.field_name', index=3,
+      name='broadcast', full_name='karps.core.Column.broadcast', index=3,
+      number=4, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='field_name', full_name='karps.core.Column.field_name', index=4,
       number=10, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
@@ -76,7 +83,38 @@ _COLUMN = _descriptor.Descriptor(
       index=0, containing_type=None, fields=[]),
   ],
   serialized_start=55,
-  serialized_end=241,
+  serialized_end=301,
+)
+
+
+_COLUMNBROADCASTOBSERVABLE = _descriptor.Descriptor(
+  name='ColumnBroadcastObservable',
+  full_name='karps.core.ColumnBroadcastObservable',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='observable_index', full_name='karps.core.ColumnBroadcastObservable.observable_index', index=0,
+      number=1, type=5, cpp_type=1, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=303,
+  serialized_end=356,
 )
 
 
@@ -106,8 +144,8 @@ _COLUMNSTRUCTURE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=243,
-  serialized_end=296,
+  serialized_start=358,
+  serialized_end=411,
 )
 
 
@@ -144,8 +182,8 @@ _COLUMNFUNCTION = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=298,
-  serialized_end=373,
+  serialized_start=413,
+  serialized_end=488,
 )
 
 
@@ -175,8 +213,8 @@ _COLUMNEXTRACTION = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=375,
-  serialized_end=407,
+  serialized_start=490,
+  serialized_end=522,
 )
 
 
@@ -223,8 +261,8 @@ _AGGREGATION = _descriptor.Descriptor(
       name='agg_op', full_name='karps.core.Aggregation.agg_op',
       index=0, containing_type=None, fields=[]),
   ],
-  serialized_start=410,
-  serialized_end=552,
+  serialized_start=525,
+  serialized_end=667,
 )
 
 
@@ -261,8 +299,8 @@ _AGGREGATIONFUNCTION = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=554,
-  serialized_end=644,
+  serialized_start=669,
+  serialized_end=759,
 )
 
 
@@ -292,13 +330,14 @@ _AGGREGATIONSTRUCTURE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=646,
-  serialized_end=709,
+  serialized_start=761,
+  serialized_end=824,
 )
 
 _COLUMN.fields_by_name['struct'].message_type = _COLUMNSTRUCTURE
 _COLUMN.fields_by_name['function'].message_type = _COLUMNFUNCTION
 _COLUMN.fields_by_name['extraction'].message_type = _COLUMNEXTRACTION
+_COLUMN.fields_by_name['broadcast'].message_type = _COLUMNBROADCASTOBSERVABLE
 _COLUMN.oneofs_by_name['content'].fields.append(
   _COLUMN.fields_by_name['struct'])
 _COLUMN.fields_by_name['struct'].containing_oneof = _COLUMN.oneofs_by_name['content']
@@ -308,6 +347,9 @@ _COLUMN.fields_by_name['function'].containing_oneof = _COLUMN.oneofs_by_name['co
 _COLUMN.oneofs_by_name['content'].fields.append(
   _COLUMN.fields_by_name['extraction'])
 _COLUMN.fields_by_name['extraction'].containing_oneof = _COLUMN.oneofs_by_name['content']
+_COLUMN.oneofs_by_name['content'].fields.append(
+  _COLUMN.fields_by_name['broadcast'])
+_COLUMN.fields_by_name['broadcast'].containing_oneof = _COLUMN.oneofs_by_name['content']
 _COLUMNSTRUCTURE.fields_by_name['fields'].message_type = _COLUMN
 _COLUMNFUNCTION.fields_by_name['inputs'].message_type = _COLUMN
 _AGGREGATION.fields_by_name['op'].message_type = _AGGREGATIONFUNCTION
@@ -321,6 +363,7 @@ _AGGREGATION.fields_by_name['struct'].containing_oneof = _AGGREGATION.oneofs_by_
 _AGGREGATIONFUNCTION.fields_by_name['inputs'].message_type = _COLUMNEXTRACTION
 _AGGREGATIONSTRUCTURE.fields_by_name['fields'].message_type = _AGGREGATION
 DESCRIPTOR.message_types_by_name['Column'] = _COLUMN
+DESCRIPTOR.message_types_by_name['ColumnBroadcastObservable'] = _COLUMNBROADCASTOBSERVABLE
 DESCRIPTOR.message_types_by_name['ColumnStructure'] = _COLUMNSTRUCTURE
 DESCRIPTOR.message_types_by_name['ColumnFunction'] = _COLUMNFUNCTION
 DESCRIPTOR.message_types_by_name['ColumnExtraction'] = _COLUMNEXTRACTION
@@ -335,6 +378,13 @@ Column = _reflection.GeneratedProtocolMessageType('Column', (_message.Message,),
   # @@protoc_insertion_point(class_scope:karps.core.Column)
   ))
 _sym_db.RegisterMessage(Column)
+
+ColumnBroadcastObservable = _reflection.GeneratedProtocolMessageType('ColumnBroadcastObservable', (_message.Message,), dict(
+  DESCRIPTOR = _COLUMNBROADCASTOBSERVABLE,
+  __module__ = 'karps.proto.structured_transform_pb2'
+  # @@protoc_insertion_point(class_scope:karps.core.ColumnBroadcastObservable)
+  ))
+_sym_db.RegisterMessage(ColumnBroadcastObservable)
 
 ColumnStructure = _reflection.GeneratedProtocolMessageType('ColumnStructure', (_message.Message,), dict(
   DESCRIPTOR = _COLUMNSTRUCTURE,

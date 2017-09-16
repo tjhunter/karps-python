@@ -3,4 +3,4 @@
 class CreationError(Exception):
     def __init__(self, message):
         # Call the base class constructor with the parameters it needs
-        super(ValidationError, self).__init__(message)
+        super(Exception, self).__init__(message)

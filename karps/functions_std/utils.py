@@ -4,14 +4,13 @@ These are developer functions that are not covered by API guarantees.
 """
 
 
-from karps.column import Observable, DataFrame, Column
+from karps.column import Observable, DataFrame, Column, build_col_broadcast, build_col_fun
 from karps.types import ArrayType
 from karps.proto import types_pb2
 from karps.proto import structured_transform_pb2 as st_pb2
 from karps.proto import std_pb2 as std_pb2
 from .base import *
 from .error import *
-
 
 
 def check_df(df):
@@ -120,5 +119,97 @@ def make_transform_sql1(sqlname, typefun, pyfun=None, spfun=None):
     return pyfun(df)
   return function
 
+def make_transform_sql(sqlname, typefun,
+  numArgs=None, pyfun=None, spfun=None):
+  """ Makes a sql transformer that accepts a fixed number of arguments (greater than one).
+
+  sqlname: the name of the sql function.
+  typefun: a function that accepts a list of datatypes and returns a datatype.
+  numargs: the number of arguments accepted by this transformer.
+  pyfun: a python function that can perform the equivalent operation (if possible).
+  spfun: a spark function that does the equivalent operation.
+
+  Returns a function of type (input: col-like, name: string) -> col-like, with the following rules:
+   - observable -> observable
+   - column -> column
+   - dataframe -> dataframe
+   - python object -> python object
+  """
+  if numArgs is not None and numArgs == 0:
+    raise CreationError("Only for sql functions that accept arguments")
+  # Implementation for a list of columns.
+  # The result is a column with the same reference.
+  def function_karps_col(cols, name):
+    types_in = [col.type for col in cols]
+    type_out = typefun(*types_in)
+    return build_col_fun(cols[0].reference, type_out, sqlname, cols)
+  def function_karps_obs(obss, name):
+    types_in = [obs.type for obs in obss]
+    type_out = typefun(*types_in)
+    def f(idx):
+      return st_pb2.Column(
+        broadcast=st_pb2.ColumnBroadcastObservable(
+          observable_index=idx),
+        field_name="_%s"%str(idx))
+    return build_observable(
+      "org.spark.LocalStructuredTransform", type_out,
+      op_extra=std_pb2.LocalStructuredTransform(
+        col_op=st_pb2.Column(
+          function=st_pb2.ColumnFunction(
+            function_name=sqlname,
+            inputs=[f(idx) for idx in range(len(obss))]))),
+      parents=obss,
+      name_hint=sqlname,
+      path_extra=name)
+  def function(*objs, name=None):
+    if len(objs) == 0 or (numArgs is not None and len(objs) != numArgs):
+      raise CreationError("%s needs %s argument(s)" % (sqlname, str(numArgs)))
+    # We accept a couple of cases for Karps:
+    #  - == 1 dataframe, >= 0 columns, >= 0 observables >= other -> dataframe
+    #  - >= 1 columns, >= 0 observables, >= other -> columns
+    #  - >= 1 observables, >= other -> obs
+    #  - >= 1 other -> python call
+    dfs = [obj for obj in objs if isinstance(obj, DataFrame)]
+    cols = [obj for obj in objs if isinstance(obj, Column)]
+    obss = [obj for obj in objs if isinstance(obj, Observable)]
+    num_df = len(dfs)
+    num_col = len(cols)
+    num_obs = len(obss)
+    # We cannot mix and match things for now.
+    if not dfs and not cols and not obss:
+      # No spark stuff, we call the python argument for now.
+      pyfun(*objs)
+    if num_obs + num_col + num_df != len(objs):
+      raise CreationError("Mixing karps objects with non karps objects")
+    # Same origin
+    bc_obj_ids = set([id(x) for x in (dfs + [col.reference for col in cols])])
+    if len(bc_obj_ids) > 1:
+      raise CreationError("More than one dataframes are being refered in this transform: dataframes: {} columns: {}".format(dfs, cols))
+    # If we are dealing with observables only, take a separate path, there is no reference in this case.
+    if not dfs and not cols:
+      return function_karps_obs(obss, name)
+    # Dealing with columns or dataframes.
+    assert dfs or cols
+    # Find the unique reference
+    if dfs:
+      ref = dfs[0]
+    else:
+      ref = cols[0].reference
+    def make_col(obj):
+      if isinstance(obj, DataFrame):
+        return obj.as_column()
+      if isinstance(obj, Column):
+        return obj
+      if isinstance(obj, Observable):
+        return build_col_broadcast(ref, obj.type, obj)
+      assert False, obj
+    all_cols = [make_col(obj) for obj in objs]
+    col = function_karps_col(all_cols, name)
+    if dfs:
+      # If we have datframes mixed in, return a dataframe
+      return col.as_dataframe()
+    else:
+      return col
+  return function
 
 

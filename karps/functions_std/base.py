@@ -7,6 +7,7 @@ for developers.
 from karps.column import Observable, DataFrame, Column, build_dataframe, build_observable
 from karps.types import make_tuple
 
+# TODO this is not required.
 def pack_local(*observables):
   """ Takes a list of observables and returns a tuple of all 
   the observables together.

@@ -12,7 +12,21 @@ from .types import DataType
 from .functions_std.error import CreationError
 
 __all__ = ['Column', 'DataFrame', 'dataframe',
- 'build_observable', 'build_dataframe']
+ 'build_observable', 'build_dataframe',
+ 'build_col_broadcast', 'build_col_fun', 'build_col_struct', 'build_col_extract']
+
+class HasArithmeticOps(object):
+  """ Dispatches arithmetic operations to the functions standard library.
+
+  This class is inherited by Column, DataFrame and Observable.
+  """
+  def __add__(self, other):
+    from .functions import plus
+    return plus(self, other)
+
+  def __sub__(self, other):
+    from .functions import minus
+    return minus(self, other)
 
 class AbstractColumn(object):
   """ A column of data.
@@ -33,6 +47,13 @@ class AbstractColumn(object):
 
   def __getattr__(self, name):
     return self[name]
+
+  def __dir__(self):
+    # For autocomplete.
+    if self.type.is_struct_type:
+      return [f.name for f in self.type.struct_fields]
+    else:
+      return object.__dir__(self)
 
   def __getitem__(self, name):
     if isinstance(name, str):
@@ -96,7 +117,7 @@ class AbstractNode(object):
       dt=str(self.type))
 
 
-class Column(AbstractColumn):
+class Column(AbstractColumn, HasArithmeticOps):
   """ A column of data isolated from a dataframe.
   """
 
@@ -107,10 +128,12 @@ class Column(AbstractColumn):
       struct=None, # List of cols (with field names)
       function_name=None, # String
       function_deps=None, # List of cols.
-      extraction=None): # list of strings
+      extraction=None, # list of strings
+      broadcast_obs=None): # an observable
     AbstractColumn.__init__(self)
+    HasArithmeticOps.__init__(self)
     assert ref # DataFrame
-    assert struct or function_name or extraction # One of the protos
+    assert struct or function_name or extraction or broadcast_obs
     self._ref = ref
     self._type_p = _type_as_proto(type_p)
     self._field_name = field_name
@@ -118,6 +141,7 @@ class Column(AbstractColumn):
     self._function_name = function_name
     self._function_deps = function_deps
     self._extraction = extraction
+    self._broadcast_obs = broadcast_obs
 
   def __repr__(self):
     return "{}:{}<-{}".format(self._pretty_name(), self.type, self.reference)
@@ -138,11 +162,24 @@ class Column(AbstractColumn):
     This causes all the columns to be resolved and coalesced. Intermediary dataframes may
     also be created if some broadcasts need to happen.
     """
+    obss = _gather_all_obs_deps(self)
+    # Remove dupblicates and order by path.
+    # This is going to remove the duplicates.
+    obsmap = dict(zip([obs.path for obs in obss], obss))
+    print("as_dataframe: obss={}".format(obss))
+    print("as_dataframe: obsmap={}".format(obsmap))
+    # Use the string representation for sorting.
+    sorted_obs = sorted(list(obsmap.values()), key=lambda obs: str(obs.path))
+    print("as_dataframe: sorted_obs={}".format(sorted_obs))
+    obsindex = dict(zip(
+      [obs.path for obs in sorted_obs],
+      range(1, 1+len(sorted_obs))))
+    print("as_dataframe: obsindex={}".format(obsindex))
     return build_dataframe(
       op_name="org.spark.TransformDistributed",
-      op_extra=_col_op_proto(self),
+      op_extra=_col_op_proto(self, obsindex),
       type_p=self._type_p,
-      parents=[self.reference] # TODO: fix when we have literals
+      parents=[self.reference] + sorted_obs
     )
 
   def _pretty_name(self):
@@ -152,10 +189,12 @@ class Column(AbstractColumn):
       return "struct(" + ",".join([c._pretty_name() for c in self._struct]) + ")"
     if self._function_name:
       return self._function_name + "(" + ",".join([c._pretty_name() for c in self._function_deps]) + ")"
-    raise None
+    if self._broadcast_obs:
+      return "OBS({})".format(self._broadcast_obs.path)
+    assert False, self
 
 
-class DataFrame(AbstractColumn, AbstractNode):
+class DataFrame(AbstractColumn, AbstractNode, HasArithmeticOps):
   """ A dataframe.
   """
 
@@ -168,6 +207,7 @@ class DataFrame(AbstractColumn, AbstractNode):
       path): # Path
     AbstractColumn.__init__(self)
     AbstractNode.__init__(self)
+    HasArithmeticOps.__init__(self)
     self._op_name = op_name
     self._type_p = type_p
     self._path = path
@@ -194,7 +234,7 @@ class DataFrame(AbstractColumn, AbstractNode):
     return self
 
 
-class Observable(AbstractNode):
+class Observable(AbstractNode, HasArithmeticOps):
   """ An observable.
 
   Do not call the constructor, use build_observable() instead.
@@ -207,8 +247,9 @@ class Observable(AbstractNode):
       parents, # List of nodes
       deps, # List of nodes
       path # A path object
-      ): # Path
+      ):
     AbstractNode.__init__(self)
+    HasArithmeticOps.__init__(self)
     self._op_name = op_name
     self._type_p = type_p
     self._path = path
@@ -297,6 +338,58 @@ def build_observable(
     deps=_as_nodes(deps),
     path=path)
 
+def build_col_struct(ref, type_p, struct, field_name=None):
+  """ Builds a column structure.
+  ref: dataframe
+  struct: list of column (for now)
+  """
+  assert isinstance(ref, DataFrame), (ref)
+  type_p = _type_as_proto(type_p)
+  return Column(
+    ref=ref,
+    type_p=type_p,
+    field_name=field_name,
+    struct=struct)
+
+def build_col_fun(ref, type_p, function_name, function_args, field_name=None):
+  """
+  function_name: string
+  function_args: [Column]
+  """
+  assert isinstance(ref, DataFrame)
+  type_p = _type_as_proto(type_p)
+  return Column(
+    ref=ref,
+    type_p=type_p,
+    field_name=field_name,
+    function_name=function_name,
+    function_deps=function_args)
+
+def build_col_extract(ref, type_p, path, field_name=None):
+  """
+  path: [string]
+  """
+  assert isinstance(ref, DataFrame)
+  type_p = _type_as_proto(type_p)
+  return Column(
+    ref=ref,
+    type_p=type_p,
+    field_name=field_name,
+    extraction=path)
+
+def build_col_broadcast(ref, type_p, obs, field_name=None):
+  """
+  obs: Observable
+  """
+  assert isinstance(ref, DataFrame), ref
+  assert isinstance(obs, Observable), obs
+  type_p = _type_as_proto(type_p)
+  return Column(
+    ref=ref,
+    type_p=type_p,
+    field_name=field_name,
+    broadcast_obs=obs)
+
 def _type_as_proto(tpe):
   if isinstance(tpe, DataType):
     return tpe._proto
@@ -330,21 +423,37 @@ def _build_path(requested_name, op_name_hint, op_name, curr_path):
   requested_path = curr_path.push(requested_name)
   return requested_path
 
-def _col_op_proto(c):
+
+def _col_op_proto(c, op_path_dict):
+  # op_path_dict: dict of path -> int index
   res = st_pb2.Column(field_name=c._field_name)
   if c._struct is not None:
     assert c._struct, c # Should not be empty
-    res.struct.fields = [_col_op_proto(c2) for c2 in c._struct]
+    res.struct.fields = [_col_op_proto(c2, op_path_dict) for c2 in c._struct]
     for f in res.struct.fields:
       assert f.field_name, (f, c, res)
   elif c._function_name is not None:
-    res.function.CopyFrom()
-    res.function.function_name = c._function_name
-    res.function.inputs = [_col_op_proto(c2) for c2 in c._function_deps]
+    # It is a function
+    res.function.CopyFrom(st_pb2.ColumnFunction(
+      function_name=c._function_name,
+      inputs=[_col_op_proto(c2, op_path_dict) for c2 in c._function_deps]))
   elif c._extraction is not None:
     res.extraction.CopyFrom(st_pb2.ColumnExtraction(path=c._extraction))
+  elif c._broadcast_obs is not None:
+    index = op_path_dict[c._broadcast_obs.path]
+    res.broadcast.observable_index = index
   else:
     assert False, c # Should not reach this point
   return res
 
+def _gather_all_obs_deps(c):
+  # Takes a column and returns a list of all the observation that this column depends on.
+  # It should still depend on a single dataframe.
+  if c._struct is not None:
+    return [o for c2 in c._struct for o in _gather_all_obs_deps(c2)]
+  if c._broadcast_obs is not None:
+    return [c._broadcast_obs]
+  if c._function_deps is not None:
+    return [o for c2 in c._function_deps for o in _gather_all_obs_deps(c2)]
+  return []
 
