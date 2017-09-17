@@ -4,14 +4,14 @@
 #from pyrsistent import m as PMap
 import re
 
-from .proto import types_pb2
+from .proto import types_pb2, std_pb2
 from .proto import structured_transform_pb2 as st_pb2
 from .row import as_cell
 from .utils import current_path, get_and_increment_counter
 from .types import DataType
 from .functions_std.error import CreationError
 
-__all__ = ['Column', 'DataFrame', 'dataframe',
+__all__ = ['Column', 'DataFrame', 'dataframe', 'observable',
  'build_observable', 'build_dataframe',
  'build_col_broadcast', 'build_col_fun', 'build_col_struct', 'build_col_extract']
 
@@ -27,6 +27,11 @@ class HasArithmeticOps(object):
   def __sub__(self, other):
     from .functions import minus
     return minus(self, other)
+
+  def __truediv__(self, other):
+    from .functions import divide
+    return divide(self, other)
+
 
 class AbstractColumn(object):
   """ A column of data.
@@ -166,18 +171,15 @@ class Column(AbstractColumn, HasArithmeticOps):
     # Remove dupblicates and order by path.
     # This is going to remove the duplicates.
     obsmap = dict(zip([obs.path for obs in obss], obss))
-    print("as_dataframe: obss={}".format(obss))
-    print("as_dataframe: obsmap={}".format(obsmap))
     # Use the string representation for sorting.
     sorted_obs = sorted(list(obsmap.values()), key=lambda obs: str(obs.path))
-    print("as_dataframe: sorted_obs={}".format(sorted_obs))
     obsindex = dict(zip(
       [obs.path for obs in sorted_obs],
       range(1, 1+len(sorted_obs))))
-    print("as_dataframe: obsindex={}".format(obsindex))
     return build_dataframe(
-      op_name="org.spark.TransformDistributed",
-      op_extra=_col_op_proto(self, obsindex),
+      op_name="org.spark.StructuredTransform",
+      op_extra=std_pb2.StructuredTransform(
+        col_op=_col_op_proto(self, obsindex)),
       type_p=self._type_p,
       parents=[self.reference] + sorted_obs
     )
@@ -264,48 +266,45 @@ def dataframe(obj, schema=None, name=None):
   This object can be:
    - a list or tuple of PySpark rows
    - a list of tuple of other Python objects
-   - a pandas dataframe
-   - a numpy array
+   - a pandas dataframe (not implemented yet)
+   - a numpy array (not implemented yet)
 
   The schema can be:
    - nothing (it will be inferred if possible)
    - a string (the name of the column if there is a single column)
    - a list or tuple of strings (the names of the top-level columns)
    - a PySpark data type
-   - a Kaprs data type
+   - a Karps data type
 
   If a schema is provided, the data will be checked for matching the types.
   """
-  # If we are provided with something schema-like, use it:
-  if schema is not None:
-    # Build an object that can be used as a schema.
-    # This schema may be invalid but this is fine here.
-    if isinstance(schema, str):
-      schema = [schema]
-    if isinstance(schema, list):
-      # Take this list of assumed strings, and put them into a structure.
-      def f(elt):
-        assert isinstance(elt, str), (type(elt), elt)
-        # Unknown field type, but we fix the field name.
-        return types_pb2.StructField(field_name=elt, field_type=None)
-      st_p = types_pb2.StructType(fields=[f(s) for s in schema])
-      schema_p = types_pb2.SQLType(
-        array_type=types_pb2.SQLType(struct_type=st_p, nullable=False),
-        nullable=False)
-      schema = DataType(schema_p)
-    assert isinstance(schema, DataType), (type(schema), schema)
-    cwt = as_cell(obj, schema=schema)
-  else:
-    # Use full inference to get the type of the data.
-    # In this case, we must have at least one element.
-    assert len(obj) > 0, "object has zero length: %s" % obj
-    cwt = as_cell(obj, schema=None)
+  cwt = _build_cwt(obj, schema)
+  # In the case of the dataframe, the top level should be an array.
   assert cwt.type.is_array_type, cwt.type
   ct_proto = cwt.type.inner_type._proto
   return build_dataframe(
     op_name="org.spark.DistributedLiteral",
     op_extra=cwt._proto,
     type_p=ct_proto,
+    path_extra=name)
+
+def observable(obj, schema=None, name=None):
+  """ Build a local value (observable) from an object.
+
+  The schema can be:
+   - nothing (it will be inferred if possible)
+   - a string (it will be assumed to a struct with a single field)
+   - a list or tuple of strings (it will be assumed to be a struct with multiple fields)
+   - a Karps data type
+   - a PySpark data type (to be implemented)
+
+  If a schema is provided, the data will be checked for matching the types.
+  """
+  cwt = _build_cwt(obj, schema)
+  return build_observable(
+    op_name="org.spark.LocalLiteral",
+    op_extra=cwt._proto,
+    type_p=cwt.type._proto,
     path_extra=name)
 
 def build_dataframe(
@@ -331,9 +330,9 @@ def build_observable(
   if path is None:
     path = _build_path(path_extra, name_hint, op_name, current_path())
   return Observable(
-    op_name = op_name,
-    type_p = _type_as_proto(type_p),
-    op_extra_p = op_extra,
+    op_name=op_name,
+    type_p=_type_as_proto(type_p),
+    op_extra_p=op_extra,
     parents=_as_nodes(parents),
     deps=_as_nodes(deps),
     path=path)
@@ -389,6 +388,34 @@ def build_col_broadcast(ref, type_p, obs, field_name=None):
     type_p=type_p,
     field_name=field_name,
     broadcast_obs=obs)
+
+def _build_cwt(obj, schema):
+  # If we are provided with something schema-like, use it:
+  if schema is not None:
+    # Build an object that can be used as a schema.
+    # This schema may be invalid but this is fine here.
+    if isinstance(schema, str):
+      schema = [schema]
+    if isinstance(schema, list):
+      # Take this list of assumed strings, and put them into a structure.
+      def f(elt):
+        assert isinstance(elt, str), (type(elt), elt)
+        # Unknown field type, but we fix the field name.
+        return types_pb2.StructField(field_name=elt, field_type=None)
+      st_p = types_pb2.StructType(fields=[f(s) for s in schema])
+      schema_p = types_pb2.SQLType(
+        array_type=types_pb2.SQLType(struct_type=st_p, nullable=False),
+        nullable=False)
+      schema = DataType(schema_p)
+    assert isinstance(schema, DataType), (type(schema), schema)
+    cwt = as_cell(obj, schema=schema)
+  else:
+    # Use full inference to get the type of the data.
+    # In this case, we must have at least one element.
+    #assert len(obj) > 0, "object has zero length: %s" % obj
+    cwt = as_cell(obj, schema=None)
+  return cwt
+
 
 def _type_as_proto(tpe):
   if isinstance(tpe, DataType):

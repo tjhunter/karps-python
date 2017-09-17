@@ -1,7 +1,8 @@
 from .proto import types_pb2 as pb
 from .utils import AbstractProtoWrapper
 
-__all__ = ['DataType', 'IntegerType', 'ArrayType', 'StructField', 'StructType',
+__all__ = ['DataType', 'IntegerType', 'DoubleType',
+ 'ArrayType', 'StructField', 'StructType',
   'merge_proto_types', 'merge_types']
 
 
@@ -66,6 +67,9 @@ class StructField(AbstractProtoWrapper):
 
 def IntegerType(strict=True):
   return DataType(pb.SQLType(basic_type=pb.SQLType.INT, nullable=not strict))
+
+def DoubleType(strict=True):
+  return DataType(pb.SQLType(basic_type=pb.SQLType.DOUBLE, nullable=not strict))
 
 def ArrayType(inner, strict=True):
   """ The type for arrays in Karps.
@@ -159,6 +163,10 @@ def _repr_proto(p):
     x = "int" 
   elif p.basic_type == pb.SQLType.DOUBLE:
     x = "double"
+  elif p.basic_type == pb.SQLType.STRING:
+    x = "string"
+  elif p.basic_type == pb.SQLType.BOOL:
+    x = "bool"
   elif p.array_type != _none_proto_type:
     x = "[" + _repr_proto(p.array_type) + "]"
   elif p.HasField("struct_type"):
