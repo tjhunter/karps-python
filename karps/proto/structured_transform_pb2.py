@@ -13,14 +13,16 @@ from google.protobuf import descriptor_pb2
 _sym_db = _symbol_database.Default()
 
 
+from karps.proto import types_pb2 as karps_dot_proto_dot_types__pb2
 
 
 DESCRIPTOR = _descriptor.FileDescriptor(
   name='karps/proto/structured_transform.proto',
   package='karps.core',
   syntax='proto3',
-  serialized_pb=_b('\n&karps/proto/structured_transform.proto\x12\nkarps.core\"\xf6\x01\n\x06\x43olumn\x12-\n\x06struct\x18\x01 \x01(\x0b\x32\x1b.karps.core.ColumnStructureH\x00\x12.\n\x08\x66unction\x18\x02 \x01(\x0b\x32\x1a.karps.core.ColumnFunctionH\x00\x12\x32\n\nextraction\x18\x03 \x01(\x0b\x32\x1c.karps.core.ColumnExtractionH\x00\x12:\n\tbroadcast\x18\x04 \x01(\x0b\x32%.karps.core.ColumnBroadcastObservableH\x00\x12\x12\n\nfield_name\x18\n \x01(\tB\t\n\x07\x63ontent\"5\n\x19\x43olumnBroadcastObservable\x12\x18\n\x10observable_index\x18\x01 \x01(\x05\"5\n\x0f\x43olumnStructure\x12\"\n\x06\x66ields\x18\x01 \x03(\x0b\x32\x12.karps.core.Column\"K\n\x0e\x43olumnFunction\x12\x15\n\rfunction_name\x18\x01 \x01(\t\x12\"\n\x06inputs\x18\x02 \x03(\x0b\x32\x12.karps.core.Column\" \n\x10\x43olumnExtraction\x12\x0c\n\x04path\x18\x01 \x03(\t\"\x8e\x01\n\x0b\x41ggregation\x12-\n\x02op\x18\x01 \x01(\x0b\x32\x1f.karps.core.AggregationFunctionH\x00\x12\x32\n\x06struct\x18\x02 \x01(\x0b\x32 .karps.core.AggregationStructureH\x00\x12\x12\n\nfield_name\x18\x03 \x01(\tB\x08\n\x06\x61gg_op\"Z\n\x13\x41ggregationFunction\x12\x15\n\rfunction_name\x18\x01 \x01(\t\x12,\n\x06inputs\x18\x02 \x03(\x0b\x32\x1c.karps.core.ColumnExtraction\"?\n\x14\x41ggregationStructure\x12\'\n\x06\x66ields\x18\x01 \x03(\x0b\x32\x17.karps.core.Aggregationb\x06proto3')
-)
+  serialized_pb=_b('\n&karps/proto/structured_transform.proto\x12\nkarps.core\x1a\x17karps/proto/types.proto\"\xf6\x01\n\x06\x43olumn\x12-\n\x06struct\x18\x01 \x01(\x0b\x32\x1b.karps.core.ColumnStructureH\x00\x12.\n\x08\x66unction\x18\x02 \x01(\x0b\x32\x1a.karps.core.ColumnFunctionH\x00\x12\x32\n\nextraction\x18\x03 \x01(\x0b\x32\x1c.karps.core.ColumnExtractionH\x00\x12:\n\tbroadcast\x18\x04 \x01(\x0b\x32%.karps.core.ColumnBroadcastObservableH\x00\x12\x12\n\nfield_name\x18\n \x01(\tB\t\n\x07\x63ontent\"5\n\x19\x43olumnBroadcastObservable\x12\x18\n\x10observable_index\x18\x01 \x01(\x05\"5\n\x0f\x43olumnStructure\x12\"\n\x06\x66ields\x18\x01 \x03(\x0b\x32\x12.karps.core.Column\"w\n\x0e\x43olumnFunction\x12\x15\n\rfunction_name\x18\x01 \x01(\t\x12\"\n\x06inputs\x18\x02 \x03(\x0b\x32\x12.karps.core.Column\x12*\n\rexpected_type\x18\x03 \x01(\x0b\x32\x13.karps.core.SQLType\" \n\x10\x43olumnExtraction\x12\x0c\n\x04path\x18\x01 \x03(\t\"\x8e\x01\n\x0b\x41ggregation\x12-\n\x02op\x18\x01 \x01(\x0b\x32\x1f.karps.core.AggregationFunctionH\x00\x12\x32\n\x06struct\x18\x02 \x01(\x0b\x32 .karps.core.AggregationStructureH\x00\x12\x12\n\nfield_name\x18\x03 \x01(\tB\x08\n\x06\x61gg_op\"\x86\x01\n\x13\x41ggregationFunction\x12\x15\n\rfunction_name\x18\x01 \x01(\t\x12,\n\x06inputs\x18\x02 \x03(\x0b\x32\x1c.karps.core.ColumnExtraction\x12*\n\rexpected_type\x18\x03 \x01(\x0b\x32\x13.karps.core.SQLType\"?\n\x14\x41ggregationStructure\x12\'\n\x06\x66ields\x18\x01 \x03(\x0b\x32\x17.karps.core.Aggregationb\x06proto3')
+  ,
+  dependencies=[karps_dot_proto_dot_types__pb2.DESCRIPTOR,])
 
 
 
@@ -82,8 +84,8 @@ _COLUMN = _descriptor.Descriptor(
       name='content', full_name='karps.core.Column.content',
       index=0, containing_type=None, fields=[]),
   ],
-  serialized_start=55,
-  serialized_end=301,
+  serialized_start=80,
+  serialized_end=326,
 )
 
 
@@ -113,8 +115,8 @@ _COLUMNBROADCASTOBSERVABLE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=303,
-  serialized_end=356,
+  serialized_start=328,
+  serialized_end=381,
 )
 
 
@@ -144,8 +146,8 @@ _COLUMNSTRUCTURE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=358,
-  serialized_end=411,
+  serialized_start=383,
+  serialized_end=436,
 )
 
 
@@ -170,6 +172,13 @@ _COLUMNFUNCTION = _descriptor.Descriptor(
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
+    _descriptor.FieldDescriptor(
+      name='expected_type', full_name='karps.core.ColumnFunction.expected_type', index=2,
+      number=3, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
   ],
   extensions=[
   ],
@@ -182,8 +191,8 @@ _COLUMNFUNCTION = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=413,
-  serialized_end=488,
+  serialized_start=438,
+  serialized_end=557,
 )
 
 
@@ -213,8 +222,8 @@ _COLUMNEXTRACTION = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=490,
-  serialized_end=522,
+  serialized_start=559,
+  serialized_end=591,
 )
 
 
@@ -261,8 +270,8 @@ _AGGREGATION = _descriptor.Descriptor(
       name='agg_op', full_name='karps.core.Aggregation.agg_op',
       index=0, containing_type=None, fields=[]),
   ],
-  serialized_start=525,
-  serialized_end=667,
+  serialized_start=594,
+  serialized_end=736,
 )
 
 
@@ -287,6 +296,13 @@ _AGGREGATIONFUNCTION = _descriptor.Descriptor(
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
+    _descriptor.FieldDescriptor(
+      name='expected_type', full_name='karps.core.AggregationFunction.expected_type', index=2,
+      number=3, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
   ],
   extensions=[
   ],
@@ -299,8 +315,8 @@ _AGGREGATIONFUNCTION = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=669,
-  serialized_end=759,
+  serialized_start=739,
+  serialized_end=873,
 )
 
 
@@ -330,8 +346,8 @@ _AGGREGATIONSTRUCTURE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=761,
-  serialized_end=824,
+  serialized_start=875,
+  serialized_end=938,
 )
 
 _COLUMN.fields_by_name['struct'].message_type = _COLUMNSTRUCTURE
@@ -352,6 +368,7 @@ _COLUMN.oneofs_by_name['content'].fields.append(
 _COLUMN.fields_by_name['broadcast'].containing_oneof = _COLUMN.oneofs_by_name['content']
 _COLUMNSTRUCTURE.fields_by_name['fields'].message_type = _COLUMN
 _COLUMNFUNCTION.fields_by_name['inputs'].message_type = _COLUMN
+_COLUMNFUNCTION.fields_by_name['expected_type'].message_type = karps_dot_proto_dot_types__pb2._SQLTYPE
 _AGGREGATION.fields_by_name['op'].message_type = _AGGREGATIONFUNCTION
 _AGGREGATION.fields_by_name['struct'].message_type = _AGGREGATIONSTRUCTURE
 _AGGREGATION.oneofs_by_name['agg_op'].fields.append(
@@ -361,6 +378,7 @@ _AGGREGATION.oneofs_by_name['agg_op'].fields.append(
   _AGGREGATION.fields_by_name['struct'])
 _AGGREGATION.fields_by_name['struct'].containing_oneof = _AGGREGATION.oneofs_by_name['agg_op']
 _AGGREGATIONFUNCTION.fields_by_name['inputs'].message_type = _COLUMNEXTRACTION
+_AGGREGATIONFUNCTION.fields_by_name['expected_type'].message_type = karps_dot_proto_dot_types__pb2._SQLTYPE
 _AGGREGATIONSTRUCTURE.fields_by_name['fields'].message_type = _AGGREGATION
 DESCRIPTOR.message_types_by_name['Column'] = _COLUMN
 DESCRIPTOR.message_types_by_name['ColumnBroadcastObservable'] = _COLUMNBROADCASTOBSERVABLE
