@@ -6,14 +6,15 @@ import re
 
 from .proto import types_pb2, std_pb2
 from .proto import structured_transform_pb2 as st_pb2
-from .row import as_cell
+from .row import as_cell, CellWithType
 from .utils import current_path, get_and_increment_counter
-from .types import DataType
+from .types import DataType, BooleanType
 from .functions_std.error import CreationError
 
 __all__ = ['Column', 'DataFrame', 'dataframe', 'observable',
  'build_observable', 'build_dataframe',
- 'build_col_broadcast', 'build_col_fun', 'build_col_struct', 'build_col_extract']
+ 'build_col_broadcast', 'build_col_fun', 'build_col_struct',
+ 'build_col_extract', 'build_col_literal']
 
 class HasArithmeticOps(object):
   """ Dispatches arithmetic operations to the functions standard library.
@@ -32,6 +33,10 @@ class HasArithmeticOps(object):
     from .functions import divide
     return divide(self, other)
 
+  def __ge__(self, other):
+    from .functions import greater_equal
+    return greater_equal(self, other)
+
 
 class AbstractColumn(object):
   """ A column of data.
@@ -49,6 +54,15 @@ class AbstractColumn(object):
   def type(self):
     """ The data type of this column """
     return DataType(self._type_p)
+
+  def groupby(self, key):
+    """ Returns a grouped dataframe, in which the value is the 
+    current column, and the key is the one provided.
+
+    The key must be (currently) a column of the refering dataframe.
+    """
+    from .groups import groupby
+    return groupby(self, key)
 
   def __getattr__(self, name):
     return self[name]
@@ -72,6 +86,12 @@ class AbstractColumn(object):
         type_p=field.type._proto,
         field_name=name,
         extraction=[name])
+    if isinstance(name, Column):
+      from .functions import filter
+      c = name
+      assert c.type == BooleanType(), "only strict boolean columns are accepted, got {}".format(c.type)
+      assert c.reference == self.reference, "Provided column comes from a different dataframe: {} should be {}".format(c.ref, self.reference)
+      return filter(c, self.as_column())
     assert False, (type(name), name)
 
 class AbstractNode(object):
@@ -129,16 +149,24 @@ class Column(AbstractColumn, HasArithmeticOps):
   def __init__(self,
       ref, # Dataframe
       type_p, # SQLType
-      field_name=None,
+      field_name=None, # string
       struct=None, # List of cols (with field names)
       function_name=None, # String
       function_deps=None, # List of cols.
       extraction=None, # list of strings
-      broadcast_obs=None): # an observable
+      broadcast_obs=None, # an observable
+      literal=None): # a CellWithType object
     AbstractColumn.__init__(self)
     HasArithmeticOps.__init__(self)
     assert ref # DataFrame
-    assert struct or function_name or extraction or broadcast_obs
+    assert not (struct is None and function_name is None and
+      extraction is None and broadcast_obs is None and literal is None)
+    if extraction is not None:
+      assert isinstance(extraction, list), (type(extraction), extraction)
+      for x in extraction:
+        assert isinstance(x, str), (type(x), x)
+    if literal is not None:
+      assert isinstance(literal, CellWithType)
     self._ref = ref
     self._type_p = _type_as_proto(type_p)
     self._field_name = field_name
@@ -147,6 +175,7 @@ class Column(AbstractColumn, HasArithmeticOps):
     self._function_deps = function_deps
     self._extraction = extraction
     self._broadcast_obs = broadcast_obs
+    self._literal = literal
 
   def __repr__(self):
     return "{}:{}<-{}".format(self._pretty_name(), self.type, self.reference)
@@ -184,6 +213,20 @@ class Column(AbstractColumn, HasArithmeticOps):
       parents=[self.reference] + sorted_obs
     )
 
+  def alias(self, field_name):
+    assert isinstance(field_name, str), type(field_name)
+    assert len(field_name) > 0, field_name
+    return Column(
+      ref=self._ref,
+      type_p=self._type_p,
+      field_name=field_name,
+      struct=self._struct,
+      function_name=self._function_name,
+      function_deps=self._function_deps,
+      extraction=self._extraction,
+      broadcast_obs=self._broadcast_obs,
+      literal=self._literal)
+
   def _pretty_name(self):
     if self._field_name is not None:
       return self._field_name
@@ -193,6 +236,8 @@ class Column(AbstractColumn, HasArithmeticOps):
       return self._function_name + "(" + ",".join([c._pretty_name() for c in self._function_deps]) + ")"
     if self._broadcast_obs:
       return "OBS({})".format(self._broadcast_obs.path)
+    if self._literal is not None:
+      return "LITERAL({})".format(self._literal.type)
     assert False, self
 
 
@@ -228,8 +273,8 @@ class DataFrame(AbstractColumn, AbstractNode, HasArithmeticOps):
     """
     return Column(
       ref=self,
-      type_p=self.type_p,
-      extraction=st_pb2.Column(extraction=st_pb2.ColumnExtraction(path=[])))
+      type_p=self._type_p,
+      extraction=[])
 
   def as_dataframe(self):
     """ A dataframe, seen as a dataframe. """
@@ -389,6 +434,20 @@ def build_col_broadcast(ref, type_p, obs, field_name=None):
     field_name=field_name,
     broadcast_obs=obs)
 
+def build_col_literal(ref, pyobj, schema=None, field_name=None):
+  """
+  pyobj: a python object that can be converted to a CellWithType (
+  or directly a CellWithType).
+  """
+  assert isinstance(ref, DataFrame), ref
+  cell = as_cell(pyobj, schema=schema)
+  return Column(
+    ref=ref,
+    type_p=_type_as_proto(cell.type),
+    field_name=field_name,
+    literal=cell)
+
+
 def _build_cwt(obj, schema):
   # If we are provided with something schema-like, use it:
   if schema is not None:
@@ -429,6 +488,7 @@ def _as_nodes(l):
     return []
   res = []
   for x in l:
+    print("_as_nodes: x={}:{}".format(type(x), x))
     if isinstance(x, AbstractNode):
       res.append(x)
     elif isinstance(x, Column):
@@ -456,7 +516,8 @@ def _col_op_proto(c, op_path_dict):
   res = st_pb2.Column(field_name=c._field_name)
   if c._struct is not None:
     assert c._struct, c # Should not be empty
-    res.struct.fields = [_col_op_proto(c2, op_path_dict) for c2 in c._struct]
+    res.struct.CopyFrom(st_pb2.ColumnStructure(
+      fields=[_col_op_proto(c2, op_path_dict) for c2 in c._struct]))
     for f in res.struct.fields:
       assert f.field_name, (f, c, res)
   elif c._function_name is not None:
@@ -465,10 +526,16 @@ def _col_op_proto(c, op_path_dict):
       function_name=c._function_name,
       inputs=[_col_op_proto(c2, op_path_dict) for c2 in c._function_deps]))
   elif c._extraction is not None:
-    res.extraction.CopyFrom(st_pb2.ColumnExtraction(path=c._extraction))
+    print("_col_op_proto: extraction={} c={}".format(c._extraction, c))
+    res.extraction.CopyFrom(
+      st_pb2.ColumnExtraction(
+        path=c._extraction))
   elif c._broadcast_obs is not None:
     index = op_path_dict[c._broadcast_obs.path]
     res.broadcast.observable_index = index
+  elif c._literal is not None:
+    res.literal.CopyFrom(st_pb2.ColumnLiteral(
+      content=c._literal._proto))
   else:
     assert False, c # Should not reach this point
   return res

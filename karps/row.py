@@ -88,6 +88,9 @@ def _as_cell_infer(obj):
   if isinstance(obj, float):
     # Strict float -> double
     return _as_cell(obj, types_pb2.SQLType(basic_type=types_pb2.SQLType.DOUBLE, nullable=False))
+  if isinstance(obj, str):
+    # Strict string
+    return _as_cell(obj, types_pb2.SQLType(basic_type=types_pb2.SQLType.STRING, nullable=False))
   if isinstance(obj, list):
     # Something that looks like a list.
     obj = list(obj)
@@ -139,6 +142,11 @@ def _as_cell(obj, tpe_proto):
     return row_pb2.CellWithType(
       cell=row_pb2.Cell(double_value=float(obj)),
       cell_type=tpe_proto)
+  if isinstance(obj, str):
+    assert tpe_proto.basic_type == types_pb2.SQLType.STRING, (type(tpe_proto), tpe_proto)
+    return row_pb2.CellWithType(
+      cell=row_pb2.Cell(string_value=str(obj)),
+      cell_type=tpe_proto)
   # Something that looks like a list
   if isinstance(obj, (list, tuple)) and tpe_proto.HasField("array_type"):
     obj = list(obj)
@@ -183,6 +191,7 @@ def _as_cell(obj, tpe_proto):
     for field, x in zip(fields, obj):
       # The inner type may be None, in which case, it 
       f_cwt = _as_cell(x, field.field_type)
+      assert f_cwt, (x, field)
       cells.append(f_cwt.cell)
       # The type may also have been updated if something got infered.
       f = types_pb2.StructField(

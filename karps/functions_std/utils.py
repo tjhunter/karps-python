@@ -4,7 +4,7 @@ These are developer functions that are not covered by API guarantees.
 """
 
 
-from karps.column import Observable, DataFrame, Column, build_col_broadcast, build_col_fun
+from karps.column import Observable, DataFrame, Column, build_col_broadcast, build_col_fun, build_col_literal
 from karps.types import ArrayType
 from karps.proto import types_pb2
 from karps.proto import structured_transform_pb2 as st_pb2
@@ -57,6 +57,8 @@ def make_aggregator_sql(sqlname, typefun, pyfun=None, spfun=None):
     # TODO: check for Spark
     # Assume this is a python object, pass it to python:
     return pyfun(df)
+  # Useful for visualization of the function
+  function.__name__ = sqlname
   return function
 
 def make_transform_sql1(sqlname, typefun, pyfun=None, spfun=None):
@@ -95,21 +97,21 @@ def make_transform_sql1(sqlname, typefun, pyfun=None, spfun=None):
       p = std_pb2.StructuredTransform(
         col_op=proto_out)
       return build_dataframe(
-        op_namp="org.spark.StructuredTransform",
+        op_name="org.spark.StructuredTransform",
         type_p=type_out,
         op_extra=p,
         parents=[obj1],
-        oname_hint=sqlname,
+        name_hint=sqlname,
         path_extra=name)
     if isinstance(obj1, Observable):
       p = st_pb2.LocalStructuredTransform(
         col_op=proto_out)
       return build_observable(
-        op_namp="org.spark.LocalStructuredTransform",
+        op_name="org.spark.LocalStructuredTransform",
         type_p=type_out,
         op_extra=p,
         parents=[obj1],
-        oname_hint=sqlname,
+        name_hint=sqlname,
         path_extra=name)
   def function(df, name=None):
     if isinstance(df, (DataFrame, Column, Observable)):
@@ -117,6 +119,8 @@ def make_transform_sql1(sqlname, typefun, pyfun=None, spfun=None):
     # TODO: check for Spark
     # Assume this is a python object, pass it to python:
     return pyfun(df)
+  # Useful for visualization of the function
+  function.__name__ = sqlname
   return function
 
 def make_transform_sql(sqlname, typefun,
@@ -172,14 +176,16 @@ def make_transform_sql(sqlname, typefun,
     dfs = [obj for obj in objs if isinstance(obj, DataFrame)]
     cols = [obj for obj in objs if isinstance(obj, Column)]
     obss = [obj for obj in objs if isinstance(obj, Observable)]
+    comps = [obj for obj in objs if is_compatible_karps(obj)]
     num_df = len(dfs)
     num_col = len(cols)
     num_obs = len(obss)
+    num_comps = len(comps)
     # We cannot mix and match things for now.
     if not dfs and not cols and not obss:
       # No spark stuff, we call the python argument for now.
       pyfun(*objs)
-    if num_obs + num_col + num_df != len(objs):
+    if num_obs + num_col + num_df + num_comps != len(objs):
       raise CreationError("Mixing karps objects with non karps objects")
     # Same origin
     bc_obj_ids = set([id(x) for x in (dfs + [col.reference for col in cols])])
@@ -202,6 +208,8 @@ def make_transform_sql(sqlname, typefun,
         return obj
       if isinstance(obj, Observable):
         return build_col_broadcast(ref, obj.type, obj)
+      if is_compatible_karps(obj):
+        return build_col_literal(ref, obj)
       assert False, obj
     all_cols = [make_col(obj) for obj in objs]
     col = function_karps_col(all_cols, name)
@@ -210,6 +218,15 @@ def make_transform_sql(sqlname, typefun,
       return col.as_dataframe()
     else:
       return col
+  # Useful for visualization of the function
+  function.__name__ = sqlname
   return function
 
+def is_compatible_karps(pyobj):
+  # True if the object can be turned into an observable.
+  # For now, it is limited to primitives.
+  # We lack type info with null objects.
+  if pyobj is None:
+    return False
+  return isinstance(pyobj, (float, str, bool, int))
 

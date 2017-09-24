@@ -1,7 +1,7 @@
 from .proto import types_pb2 as pb
 from .utils import AbstractProtoWrapper
 
-__all__ = ['DataType', 'IntegerType', 'DoubleType',
+__all__ = ['DataType', 'IntegerType', 'DoubleType', 'BooleanType',
  'ArrayType', 'StructField', 'StructType',
   'merge_proto_types', 'merge_types']
 
@@ -49,7 +49,7 @@ class DataType(AbstractProtoWrapper):
     return self._proto
 
 
-class StructField(AbstractProtoWrapper):
+class _StructField(AbstractProtoWrapper):
   """ A field in a struct.
   """
 
@@ -65,11 +65,29 @@ class StructField(AbstractProtoWrapper):
   def type(self):
     return DataType(self._proto.field_type)
 
+def StructField(dt, field_name=None):
+  if isinstance(dt, DataType):
+    dt = dt._proto
+  sf = pb.StructField()
+  if isinstance(dt, pb.StructField):
+    sf.CopyFrom(dt)
+  else:
+    assert isinstance(dt, pb.SQLType), dt
+    sf.field_type.CopyFrom(dt)
+  if field_name is not None:
+    assert field_name, field_name
+    sf.field_name = field_name
+  return _StructField(sf)
+
+
 def IntegerType(strict=True):
   return DataType(pb.SQLType(basic_type=pb.SQLType.INT, nullable=not strict))
 
 def DoubleType(strict=True):
   return DataType(pb.SQLType(basic_type=pb.SQLType.DOUBLE, nullable=not strict))
+
+def BooleanType(strict=True):
+  return DataType(pb.SQLType(basic_type=pb.SQLType.BOOL, nullable=not strict))
 
 def ArrayType(inner, strict=True):
   """ The type for arrays in Karps.
@@ -82,7 +100,7 @@ def ArrayType(inner, strict=True):
 def StructType(l, strict=True):
   l2 = []
   for x in l:
-    if isinstance(x, StructField):
+    if isinstance(x, _StructField):
       l2.append(x._proto)
     elif isinstance(x, pb.StructField):
       l2.append(x)
@@ -97,7 +115,7 @@ def make_tuple(*fields):
   """
   fields2 = []
   for (idx, f) in zip(range(len(fields)), fields):
-    if isinstance(f, (StructField, pb.StructField)):
+    if isinstance(f, (_StructField, pb.StructField)):
       fields2.append(f)
     if isinstance(f, pb.SQLType):
       fields2.append(pd.StructField(
@@ -170,7 +188,7 @@ def _repr_proto(p):
   elif p.array_type != _none_proto_type:
     x = "[" + _repr_proto(p.array_type) + "]"
   elif p.HasField("struct_type"):
-    x = "{" + " ".join([_repr_proto_field(f) for f in p.struct_type.fields]) + "}"
+    x = "{" + ", ".join([_repr_proto_field(f) for f in p.struct_type.fields]) + "}"
   assert x, p
   if p.nullable:
     x = x + "?"
