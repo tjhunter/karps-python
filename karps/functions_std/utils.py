@@ -104,7 +104,7 @@ def make_transform_sql1(sqlname, typefun, pyfun=None, spfun=None):
         name_hint=sqlname,
         path_extra=name)
     if isinstance(obj1, Observable):
-      p = st_pb2.LocalStructuredTransform(
+      p = std_pb2.LocalStructuredTransform(
         col_op=proto_out)
       return build_observable(
         op_name="org.spark.LocalStructuredTransform",
@@ -193,7 +193,16 @@ def make_transform_sql(sqlname, typefun,
       raise CreationError("More than one dataframes are being refered in this transform: dataframes: {} columns: {}".format(dfs, cols))
     # If we are dealing with observables only, take a separate path, there is no reference in this case.
     if not dfs and not cols:
-      return function_karps_obs(obss, name)
+      # Using observables. All the values are translated as observables.
+      def convert(obs):
+        from ..column import observable
+        if isinstance(obs, Observable):
+          return obs
+        if is_compatible_karps(obs):
+          return observable(obs)
+        assert False (type(obs), obs)
+      obss2 = [convert(o) for o in objs]
+      return function_karps_obs(obss2, name)
     # Dealing with columns or dataframes.
     assert dfs or cols
     # Find the unique reference

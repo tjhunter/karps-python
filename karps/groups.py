@@ -23,7 +23,7 @@ class KeyedGroup(object):
 
   def agg(self, aggobj, name=None):
     """ Performs an aggregation on the given dataframe.
-    
+
     agg_obj: an object that describes some aggregation. It can be one of the 
     following:
      - a string that contains a known aggregation function or UDAF, such as 'min', 'sum', 'count', ...
@@ -52,7 +52,8 @@ class KeyedGroup(object):
 def groupby(obj, key):
   if isinstance(obj, AbstractColumn):
     # We group over the whole dataframe or a column of Karps data.
-    return _groupby_ks(obj.reference, key, obj.as_column())
+    return _groupby_ks(obj.reference, key.as_column(), obj.as_column())
+  create_error("first argument not understood: {} {}".format(type(obj), obj))
 
 def _groupby_ks(obj, key_obj, value_obj):
   """ Implementation of the grouping logic for karps objects.
@@ -72,8 +73,9 @@ def _agg_ks(kg, aggobj, name):
   """
   df = struct([('key', kg._key_col), ('value', kg._value_col)]).as_dataframe()
   ph = placeholder_like(kg._value_col)
-  out = _process_aggobj(aggobj, ph)
-  print("_agg_ks: out={}".format(out))
+  # For now, some operations like filtering are only possible with columns.
+  ph_col = ph.as_column()
+  out = _process_aggobj(aggobj, ph_col)
   # The fields of the return type.
   dt = StructType([StructField(kg._key_col.type, "key")] + [StructField(o.type, fname) for (fname, o) in out])
   return build_dataframe(

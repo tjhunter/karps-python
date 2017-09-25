@@ -29,13 +29,13 @@ count = make_aggregator_sql("count", lambda x: IntegerType(), _b.len)
 
 sum = make_aggregator_sql("sum", check_type_number, _b.sum)
 
-inv = make_transform_sql1("inv", check_type_number, lambda x: 1/x)
+inv = make_transform_sql1("inverse", check_type_number, lambda x: 1/x)
 
 plus = make_transform_sql("plus", _check_same_2, 2, lambda x1, x2: x1+x2)
 
 minus = make_transform_sql("minus", _check_same_2, 2, lambda x1, x2: x1-x2)
 
-multiply = make_transform_sql("mulitply", _check_same_2, 2, lambda x1, x2: x1*x2)
+multiply = make_transform_sql("multiply", _check_same_2, 2, lambda x1, x2: x1*x2)
 
 divide = make_transform_sql("divide", _check_same_2, 2, lambda x1, x2: x1/x2)
 

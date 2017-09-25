@@ -25,6 +25,10 @@ class HasArithmeticOps(object):
     from .functions import plus
     return plus(self, other)
 
+  def __mul__(self, other):
+    from .functions import multiply
+    return multiply(self, other)
+
   def __sub__(self, other):
     from .functions import minus
     return minus(self, other)
@@ -32,6 +36,13 @@ class HasArithmeticOps(object):
   def __truediv__(self, other):
     from .functions import divide
     return divide(self, other)
+
+  def __rtruediv__(self, other):
+    from .functions import divide, inv
+    # TODO: hack, should be done in the compiler
+    if other == 1.0:
+      return inv(self)
+    return divide(other, self)
 
   def __ge__(self, other):
     from .functions import greater_equal
@@ -230,16 +241,18 @@ class Column(AbstractColumn, HasArithmeticOps):
   def _pretty_name(self):
     if self._field_name is not None:
       return self._field_name
-    if self._struct:
+    if self._struct is not None:
       return "struct(" + ",".join([c._pretty_name() for c in self._struct]) + ")"
-    if self._function_name:
+    if self._function_name is not None:
       return self._function_name + "(" + ",".join([c._pretty_name() for c in self._function_deps]) + ")"
-    if self._broadcast_obs:
+    if self._broadcast_obs is not None:
       return "OBS({})".format(self._broadcast_obs.path)
     if self._literal is not None:
       return "LITERAL({})".format(self._literal.type)
-    assert False, self
-
+    if self._extraction is not None:
+      return "EXTR({})".format(self._extraction)
+    s = str(self)
+    assert False, s
 
 class DataFrame(AbstractColumn, AbstractNode, HasArithmeticOps):
   """ A dataframe.
@@ -271,10 +284,10 @@ class DataFrame(AbstractColumn, AbstractNode, HasArithmeticOps):
   def as_column(self):
     """ A dataframe, seen as a column.
     """
-    return Column(
+    return build_col_extract(
       ref=self,
       type_p=self._type_p,
-      extraction=[])
+      path=[])
 
   def as_dataframe(self):
     """ A dataframe, seen as a dataframe. """
@@ -488,7 +501,6 @@ def _as_nodes(l):
     return []
   res = []
   for x in l:
-    print("_as_nodes: x={}:{}".format(type(x), x))
     if isinstance(x, AbstractNode):
       res.append(x)
     elif isinstance(x, Column):
@@ -526,7 +538,6 @@ def _col_op_proto(c, op_path_dict):
       function_name=c._function_name,
       inputs=[_col_op_proto(c2, op_path_dict) for c2 in c._function_deps]))
   elif c._extraction is not None:
-    print("_col_op_proto: extraction={} c={}".format(c._extraction, c))
     res.extraction.CopyFrom(
       st_pb2.ColumnExtraction(
         path=c._extraction))
