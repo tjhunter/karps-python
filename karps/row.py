@@ -85,6 +85,12 @@ def _as_cell_infer(obj):
   if isinstance(obj, int):
     # Strict int
     return _as_cell(obj, types_pb2.SQLType(basic_type=types_pb2.SQLType.INT, nullable=False))
+  if isinstance(obj, float):
+    # Strict float -> double
+    return _as_cell(obj, types_pb2.SQLType(basic_type=types_pb2.SQLType.DOUBLE, nullable=False))
+  if isinstance(obj, str):
+    # Strict string
+    return _as_cell(obj, types_pb2.SQLType(basic_type=types_pb2.SQLType.STRING, nullable=False))
   if isinstance(obj, list):
     # Something that looks like a list.
     obj = list(obj)
@@ -93,8 +99,11 @@ def _as_cell_infer(obj):
     inner_type = _merge_proto_types([cwt.cell_type for cwt in l])
     cells = [cwt.cell for cwt in l]
     return row_pb2.CellWithType(
-      cell=row_pb2.Cell(array_value=row_pb2.ArrayCell(cells)),
-      cell_type=types_pb2.SQLType(array_type=types_pb2.SQLType(inner_type)))
+      cell=row_pb2.Cell(
+        array_value=row_pb2.ArrayCell(
+          values=cells)),
+      cell_type=types_pb2.SQLType(
+        array_type=inner_type))
   if isinstance(obj, tuple):
     # A tuple is interpreted as a dictionary with some implicit names:
     field_names = ["_" + str(idx+1) for idx in range(len(obj))]
@@ -127,6 +136,16 @@ def _as_cell(obj, tpe_proto):
     assert tpe_proto.basic_type == types_pb2.SQLType.INT, (type(tpe_proto), tpe_proto)
     return row_pb2.CellWithType(
       cell=row_pb2.Cell(int_value=int(obj)),
+      cell_type=tpe_proto)
+  if isinstance(obj, float):
+    assert tpe_proto.basic_type == types_pb2.SQLType.DOUBLE, (type(tpe_proto), tpe_proto)
+    return row_pb2.CellWithType(
+      cell=row_pb2.Cell(double_value=float(obj)),
+      cell_type=tpe_proto)
+  if isinstance(obj, str):
+    assert tpe_proto.basic_type == types_pb2.SQLType.STRING, (type(tpe_proto), tpe_proto)
+    return row_pb2.CellWithType(
+      cell=row_pb2.Cell(string_value=str(obj)),
       cell_type=tpe_proto)
   # Something that looks like a list
   if isinstance(obj, (list, tuple)) and tpe_proto.HasField("array_type"):
@@ -172,6 +191,7 @@ def _as_cell(obj, tpe_proto):
     for field, x in zip(fields, obj):
       # The inner type may be None, in which case, it 
       f_cwt = _as_cell(x, field.field_type)
+      assert f_cwt, (x, field)
       cells.append(f_cwt.cell)
       # The type may also have been updated if something got infered.
       f = types_pb2.StructField(
