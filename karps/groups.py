@@ -71,19 +71,40 @@ def _groupby_ks(obj, key_obj, value_obj):
 def _agg_ks(kg, aggobj, name):
   """ Implementation of the aggregation logic for karps keyed groups.
   """
-  df = struct([('key', kg._key_col), ('value', kg._value_col)]).as_dataframe()
+  # The implementation works as follows:
+  # - build a dataframe that packs the data: {key:keyDT, value:valueDT}
+  # - run structured transform on it, the results is also {key: keyDT, value:aggDT}
+  # - rename and if necessary unpack the key and values in a separate transform.
   ph = placeholder_like(kg._value_col)
   # For now, some operations like filtering are only possible with columns.
   ph_col = ph.as_column()
   out = _process_aggobj(aggobj, ph_col)
   # The fields of the return type.
-  dt = StructType([StructField(kg._key_col.type, "key")] + [StructField(o.type, fname) for (fname, o) in out])
-  return build_dataframe(
+  df_pre = struct([('key', kg._key_col), ('value', kg._value_col)]).as_dataframe(name_hint="agg_pre")
+  # The data structure returned by the aggregation:
+  if len(out) == 1:
+    (_, o) = out[0]
+    dt_value = o.type
+  else:
+    dt_value = StructType([StructField(o.type, fname) for (fname, o) in out])
+  dt = StructType([StructField(kg._key_col.type, "key"), StructField(dt_value, "value")])
+  df = build_dataframe(
     op_name="org.spark.FunctionalShuffle",
     type_p=dt,
-    parents=[df, ph] + [obs for (_, obs) in out],
+    parents=[df_pre, ph] + [obs for (_, obs) in out],
     name_hint="shuffle",
     path_extra=name)
+  # Give the proper names to the output columns:
+  key_name = kg._key_col._field_name if kg._key_col._field_name else 'key'
+  key_col = (key_name, df['key'])
+  if len(out) == 1:
+    (fname, _) = out[0]
+    value_cols = [(fname, df['value'])]
+  else:
+    value_cols = [(fname, df['value'][fname]) for (fname, _) in out]
+  df_post = struct([key_col] + value_cols).as_dataframe(name_hint="agg_post")
+  return df_post
+
 
 def _process_aggobj(aggobj, pholder):
   if hasattr(aggobj, '__call__'):

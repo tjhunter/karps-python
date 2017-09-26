@@ -66,7 +66,9 @@ def filter(filter_col, col, name=None):
   """ Returns a dataframe with all the values from `col` subject to 
   a predicate that is verified in `filter_col`.
   """
-  df = check_df(struct([("filter", filter_col), ("value", col)]))
+  df = check_df(
+    struct([("filter", filter_col), ("value", col)]),
+    name_hint="filter_pre")
   return build_dataframe(
     op_name="org.spark.Filter",
     type_p=col.type,

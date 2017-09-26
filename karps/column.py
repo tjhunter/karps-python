@@ -201,7 +201,7 @@ class Column(AbstractColumn, HasArithmeticOps):
     """
     return self
 
-  def as_dataframe(self):
+  def as_dataframe(self, name_hint=None):
     """ A column, seen as a dataframe (referring to itself).
 
     This causes all the columns to be resolved and coalesced. Intermediary dataframes may
@@ -221,7 +221,8 @@ class Column(AbstractColumn, HasArithmeticOps):
       op_extra=std_pb2.StructuredTransform(
         col_op=_col_op_proto(self, obsindex)),
       type_p=self._type_p,
-      parents=[self.reference] + sorted_obs
+      parents=[self.reference] + sorted_obs,
+      name_hint=name_hint
     )
 
   def alias(self, field_name):
@@ -518,7 +519,7 @@ def _build_path(requested_name, op_name_hint, op_name, curr_path):
     # Use the name hint is available, or the name of the operation as a last resort.
     name_base = op_name_hint or op_name.split(".")[-1]
     counter = get_and_increment_counter()
-    requested_name = _convert(name_base) + "_" + str(counter)
+    requested_name = _convert(name_base) + str(counter)
   requested_path = curr_path.push(requested_name)
   return requested_path
 

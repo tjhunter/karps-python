@@ -13,14 +13,14 @@ from .base import *
 from .error import *
 
 
-def check_df(df):
+def check_df(df, name_hint=None):
   """ Checks if the input is a dataframe, or turns it into a dataframe
   if necessary (if it is a column).
   """
   if isinstance(df, DataFrame):
     return df
   if isinstance(df, Column):
-    return df.as_dataframe()
+    return df.as_dataframe(name_hint=name_hint)
   raise CreationError("Trying to cast %s as a dataframe, which is of type %s" % (df, type(df)))
 
 def check_type_number(dt):
