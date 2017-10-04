@@ -165,7 +165,9 @@ def make_transform_sql(sqlname, typefun,
       parents=obss,
       name_hint=sqlname,
       path_extra=name)
-  def function(*objs, name=None):
+  # def function(*objs, name=None): # TODO: this is python3 only
+  def function(*objs, **kwargs):
+    name = kwargs['name'] if 'name' in kwargs else None
     if len(objs) == 0 or (numArgs is not None and len(objs) != numArgs):
       raise CreationError("%s needs %s argument(s)" % (sqlname, str(numArgs)))
     # We accept a couple of cases for Karps:

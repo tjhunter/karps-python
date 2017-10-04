@@ -16,15 +16,16 @@ _sym_db = _symbol_database.Default()
 
 from karps.proto import graph_pb2 as karps_dot_proto_dot_graph__pb2
 from karps.proto import row_pb2 as karps_dot_proto_dot_row__pb2
+from tensorflow.core.framework import node_def_pb2 as tensorflow_dot_core_dot_framework_dot_node__def__pb2
 
 
 DESCRIPTOR = _descriptor.FileDescriptor(
   name='karps/proto/computation.proto',
   package='karps.core',
   syntax='proto3',
-  serialized_pb=_b('\n\x1dkarps/proto/computation.proto\x12\nkarps.core\x1a\x17karps/proto/graph.proto\x1a\x15karps/proto/row.proto\"\xfd\x01\n\x11\x43omputationResult\x12$\n\nlocal_path\x18\x01 \x01(\x0b\x32\x10.karps.core.Path\x12(\n\x06status\x18\x02 \x01(\x0e\x32\x18.karps.core.ResultStatus\x12\x13\n\x0b\x66inal_error\x18\x03 \x01(\t\x12.\n\x0c\x66inal_result\x18\x04 \x01(\x0b\x32\x18.karps.core.CellWithType\x12+\n\x0bspark_stats\x18\x05 \x01(\x0b\x32\x16.karps.core.SparkStats\x12&\n\x0c\x64\x65pendencies\x18\x06 \x03(\x0b\x32\x10.karps.core.Path\"o\n\x16\x42\x61tchComputationResult\x12%\n\x0btarget_path\x18\x01 \x01(\x0b\x32\x10.karps.core.Path\x12.\n\x07results\x18\x02 \x03(\x0b\x32\x1d.karps.core.ComputationResult\"c\n\x0bPointerPath\x12.\n\x0b\x63omputation\x18\x01 \x01(\x0b\x32\x19.karps.core.ComputationId\x12$\n\nlocal_path\x18\x02 \x01(\x0b\x32\x10.karps.core.Path\"3\n\nSparkStats\x12%\n\x08rdd_info\x18\x01 \x03(\x0b\x32\x13.karps.core.RDDInfo\"L\n\x07RDDInfo\x12\x0e\n\x06rdd_id\x18\x01 \x01(\x03\x12\x12\n\nclass_name\x18\x02 \x01(\t\x12\x0c\n\x04repr\x18\x03 \x01(\t\x12\x0f\n\x07parents\x18\x04 \x03(\x03\"\x1b\n\rComputationId\x12\n\n\x02id\x18\x01 \x01(\t\"\x17\n\tSessionId\x12\n\n\x02id\x18\x01 \x01(\t*b\n\x0cResultStatus\x12\n\n\x06UNUSED\x10\x00\x12\x0b\n\x07RUNNING\x10\x01\x12\x14\n\x10\x46INISHED_SUCCESS\x10\x02\x12\x14\n\x10\x46INISHED_FAILURE\x10\x03\x12\r\n\tSCHEDULED\x10\x04\x62\x06proto3')
+  serialized_pb=_b('\n\x1dkarps/proto/computation.proto\x12\nkarps.core\x1a\x17karps/proto/graph.proto\x1a\x15karps/proto/row.proto\x1a(tensorflow/core/framework/node_def.proto\"\xfd\x01\n\x11\x43omputationResult\x12$\n\nlocal_path\x18\x01 \x01(\x0b\x32\x10.karps.core.Path\x12(\n\x06status\x18\x02 \x01(\x0e\x32\x18.karps.core.ResultStatus\x12\x13\n\x0b\x66inal_error\x18\x03 \x01(\t\x12.\n\x0c\x66inal_result\x18\x04 \x01(\x0b\x32\x18.karps.core.CellWithType\x12+\n\x0bspark_stats\x18\x05 \x01(\x0b\x32\x16.karps.core.SparkStats\x12&\n\x0c\x64\x65pendencies\x18\x06 \x03(\x0b\x32\x10.karps.core.Path\"o\n\x16\x42\x61tchComputationResult\x12%\n\x0btarget_path\x18\x01 \x01(\x0b\x32\x10.karps.core.Path\x12.\n\x07results\x18\x02 \x03(\x0b\x32\x1d.karps.core.ComputationResult\"c\n\x0bPointerPath\x12.\n\x0b\x63omputation\x18\x01 \x01(\x0b\x32\x19.karps.core.ComputationId\x12$\n\nlocal_path\x18\x02 \x01(\x0b\x32\x10.karps.core.Path\"\xde\x01\n\nSparkStats\x12%\n\x08rdd_info\x18\x01 \x03(\x0b\x32\x13.karps.core.RDDInfo\x12\'\n\x06parsed\x18\x02 \x03(\x0b\x32\x17.karps.core.SQLTreeInfo\x12)\n\x08\x61nalyzed\x18\x03 \x03(\x0b\x32\x17.karps.core.SQLTreeInfo\x12*\n\toptimized\x18\x04 \x03(\x0b\x32\x17.karps.core.SQLTreeInfo\x12)\n\x08physical\x18\x05 \x03(\x0b\x32\x17.karps.core.SQLTreeInfo\"p\n\x07RDDInfo\x12\x0e\n\x06rdd_id\x18\x01 \x01(\x03\x12\x12\n\nclass_name\x18\x02 \x01(\t\x12\x0c\n\x04repr\x18\x03 \x01(\t\x12\x0f\n\x07parents\x18\x04 \x03(\x03\x12\"\n\x05proto\x18\x05 \x01(\x0b\x32\x13.tensorflow.NodeDef\"k\n\x0bSQLTreeInfo\x12\x0f\n\x07node_id\x18\x01 \x01(\t\x12\x11\n\tfull_name\x18\x02 \x01(\t\x12\x14\n\x0cparent_nodes\x18\x03 \x03(\t\x12\"\n\x05proto\x18\x04 \x01(\x0b\x32\x13.tensorflow.NodeDef\"\x1b\n\rComputationId\x12\n\n\x02id\x18\x01 \x01(\t\"\x17\n\tSessionId\x12\n\n\x02id\x18\x01 \x01(\t*b\n\x0cResultStatus\x12\n\n\x06UNUSED\x10\x00\x12\x0b\n\x07RUNNING\x10\x01\x12\x14\n\x10\x46INISHED_SUCCESS\x10\x02\x12\x14\n\x10\x46INISHED_FAILURE\x10\x03\x12\r\n\tSCHEDULED\x10\x04\x62\x06proto3')
   ,
-  dependencies=[karps_dot_proto_dot_graph__pb2.DESCRIPTOR,karps_dot_proto_dot_row__pb2.DESCRIPTOR,])
+  dependencies=[karps_dot_proto_dot_graph__pb2.DESCRIPTOR,karps_dot_proto_dot_row__pb2.DESCRIPTOR,tensorflow_dot_core_dot_framework_dot_node__def__pb2.DESCRIPTOR,])
 
 _RESULTSTATUS = _descriptor.EnumDescriptor(
   name='ResultStatus',
@@ -55,8 +56,8 @@ _RESULTSTATUS = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   options=None,
-  serialized_start=748,
-  serialized_end=846,
+  serialized_start=1107,
+  serialized_end=1205,
 )
 _sym_db.RegisterEnumDescriptor(_RESULTSTATUS)
 
@@ -130,8 +131,8 @@ _COMPUTATIONRESULT = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=94,
-  serialized_end=347,
+  serialized_start=136,
+  serialized_end=389,
 )
 
 
@@ -168,8 +169,8 @@ _BATCHCOMPUTATIONRESULT = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=349,
-  serialized_end=460,
+  serialized_start=391,
+  serialized_end=502,
 )
 
 
@@ -206,8 +207,8 @@ _POINTERPATH = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=462,
-  serialized_end=561,
+  serialized_start=504,
+  serialized_end=603,
 )
 
 
@@ -225,6 +226,34 @@ _SPARKSTATS = _descriptor.Descriptor(
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
+    _descriptor.FieldDescriptor(
+      name='parsed', full_name='karps.core.SparkStats.parsed', index=1,
+      number=2, type=11, cpp_type=10, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='analyzed', full_name='karps.core.SparkStats.analyzed', index=2,
+      number=3, type=11, cpp_type=10, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='optimized', full_name='karps.core.SparkStats.optimized', index=3,
+      number=4, type=11, cpp_type=10, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='physical', full_name='karps.core.SparkStats.physical', index=4,
+      number=5, type=11, cpp_type=10, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
   ],
   extensions=[
   ],
@@ -237,8 +266,8 @@ _SPARKSTATS = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=563,
-  serialized_end=614,
+  serialized_start=606,
+  serialized_end=828,
 )
 
 
@@ -277,6 +306,13 @@ _RDDINFO = _descriptor.Descriptor(
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
+    _descriptor.FieldDescriptor(
+      name='proto', full_name='karps.core.RDDInfo.proto', index=4,
+      number=5, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
   ],
   extensions=[
   ],
@@ -289,8 +325,60 @@ _RDDINFO = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=616,
-  serialized_end=692,
+  serialized_start=830,
+  serialized_end=942,
+)
+
+
+_SQLTREEINFO = _descriptor.Descriptor(
+  name='SQLTreeInfo',
+  full_name='karps.core.SQLTreeInfo',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='node_id', full_name='karps.core.SQLTreeInfo.node_id', index=0,
+      number=1, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='full_name', full_name='karps.core.SQLTreeInfo.full_name', index=1,
+      number=2, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='parent_nodes', full_name='karps.core.SQLTreeInfo.parent_nodes', index=2,
+      number=3, type=9, cpp_type=9, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='proto', full_name='karps.core.SQLTreeInfo.proto', index=3,
+      number=4, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=944,
+  serialized_end=1051,
 )
 
 
@@ -320,8 +408,8 @@ _COMPUTATIONID = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=694,
-  serialized_end=721,
+  serialized_start=1053,
+  serialized_end=1080,
 )
 
 
@@ -351,8 +439,8 @@ _SESSIONID = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=723,
-  serialized_end=746,
+  serialized_start=1082,
+  serialized_end=1105,
 )
 
 _COMPUTATIONRESULT.fields_by_name['local_path'].message_type = karps_dot_proto_dot_graph__pb2._PATH
@@ -365,11 +453,18 @@ _BATCHCOMPUTATIONRESULT.fields_by_name['results'].message_type = _COMPUTATIONRES
 _POINTERPATH.fields_by_name['computation'].message_type = _COMPUTATIONID
 _POINTERPATH.fields_by_name['local_path'].message_type = karps_dot_proto_dot_graph__pb2._PATH
 _SPARKSTATS.fields_by_name['rdd_info'].message_type = _RDDINFO
+_SPARKSTATS.fields_by_name['parsed'].message_type = _SQLTREEINFO
+_SPARKSTATS.fields_by_name['analyzed'].message_type = _SQLTREEINFO
+_SPARKSTATS.fields_by_name['optimized'].message_type = _SQLTREEINFO
+_SPARKSTATS.fields_by_name['physical'].message_type = _SQLTREEINFO
+_RDDINFO.fields_by_name['proto'].message_type = tensorflow_dot_core_dot_framework_dot_node__def__pb2._NODEDEF
+_SQLTREEINFO.fields_by_name['proto'].message_type = tensorflow_dot_core_dot_framework_dot_node__def__pb2._NODEDEF
 DESCRIPTOR.message_types_by_name['ComputationResult'] = _COMPUTATIONRESULT
 DESCRIPTOR.message_types_by_name['BatchComputationResult'] = _BATCHCOMPUTATIONRESULT
 DESCRIPTOR.message_types_by_name['PointerPath'] = _POINTERPATH
 DESCRIPTOR.message_types_by_name['SparkStats'] = _SPARKSTATS
 DESCRIPTOR.message_types_by_name['RDDInfo'] = _RDDINFO
+DESCRIPTOR.message_types_by_name['SQLTreeInfo'] = _SQLTREEINFO
 DESCRIPTOR.message_types_by_name['ComputationId'] = _COMPUTATIONID
 DESCRIPTOR.message_types_by_name['SessionId'] = _SESSIONID
 DESCRIPTOR.enum_types_by_name['ResultStatus'] = _RESULTSTATUS
@@ -409,6 +504,13 @@ RDDInfo = _reflection.GeneratedProtocolMessageType('RDDInfo', (_message.Message,
   # @@protoc_insertion_point(class_scope:karps.core.RDDInfo)
   ))
 _sym_db.RegisterMessage(RDDInfo)
+
+SQLTreeInfo = _reflection.GeneratedProtocolMessageType('SQLTreeInfo', (_message.Message,), dict(
+  DESCRIPTOR = _SQLTREEINFO,
+  __module__ = 'karps.proto.computation_pb2'
+  # @@protoc_insertion_point(class_scope:karps.core.SQLTreeInfo)
+  ))
+_sym_db.RegisterMessage(SQLTreeInfo)
 
 ComputationId = _reflection.GeneratedProtocolMessageType('ComputationId', (_message.Message,), dict(
   DESCRIPTOR = _COMPUTATIONID,

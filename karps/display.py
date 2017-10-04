@@ -17,7 +17,9 @@ def strip_consts(graph_def, max_const_size=32):
     return strip_def
 
 def show_phase(comp, phase_name):
-    g = comp.compiler_step(phase_name).graph_def
+    g = comp.compiler_step(phase_name)
+    if hasattr(g, "graph_def"):
+        g = g.graph_def
     show_graph(g)
 
 def show_graph(graph_def, max_const_size=32):
@@ -42,4 +44,4 @@ def show_graph(graph_def, max_const_size=32):
     iframe = """
         <iframe seamless style="width:1000px;height:620px;border:0" srcdoc="{}"></iframe>
     """.format(code.replace('"', '&quot;'))
-    display(HTML(iframe))
+    return display(HTML(iframe))
