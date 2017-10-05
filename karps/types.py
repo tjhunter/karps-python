@@ -118,7 +118,7 @@ def make_tuple(*fields):
     if isinstance(f, (_StructField, pb.StructField)):
       fields2.append(f)
     if isinstance(f, pb.SQLType):
-      fields2.append(pd.StructField(
+      fields2.append(pb.StructField(
         field_name="_%s" % str(idx),
         field_type=f))
     raise ValueError("Could not understand type %s for %s" % (type(f), f))
@@ -191,7 +191,7 @@ def _repr_proto(p):
     x = "{" + ", ".join([_repr_proto_field(f) for f in p.struct_type.fields]) + "}"
   assert x, p
   if p.nullable:
-    x = x + "?"
+    x += "?"
   return x
 
 def _repr_proto_field(p):

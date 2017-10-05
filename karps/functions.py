@@ -1,11 +1,11 @@
 """ The standard library of dataframe functions in Karps.
 """
 
-from .column import Observable
-from .types import ArrayType, IntegerType, DoubleType, BooleanType
+from .types import IntegerType, DoubleType, BooleanType, ArrayType
 from .functions_std.utils import *
 from .functions_std.error import *
 import builtins as _b
+from pandas import Series as PS
 
 #__all__ = ['as_double', 'collect', 'count', 'inv', 'max']
 
@@ -23,11 +23,11 @@ def _check_cmp(dt1, dt2):
 
 collect = make_aggregator_sql("collect_list", ArrayType, _b.list)
 
-max = make_aggregator_sql("max", check_type_number, _b.max)
+max = make_aggregator_sql("max", check_type_number, PS.max)
 
-count = make_aggregator_sql("count", lambda x: IntegerType(), _b.len)
+count = make_aggregator_sql("count", lambda x: IntegerType(), PS.count)
 
-sum = make_aggregator_sql("sum", check_type_number, _b.sum)
+sum = make_aggregator_sql("sum", check_type_number, PS.sum)
 
 inv = make_transform_sql1("inverse", check_type_number, lambda x: 1/x)
 

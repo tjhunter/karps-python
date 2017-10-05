@@ -4,11 +4,11 @@ These are developer functions that are not covered by API guarantees.
 """
 
 
-from karps.column import Observable, DataFrame, Column, build_col_broadcast, build_col_fun, build_col_literal
-from karps.types import ArrayType
-from karps.proto import types_pb2
-from karps.proto import structured_transform_pb2 as st_pb2
-from karps.proto import std_pb2 as std_pb2
+import pandas as pd
+
+from ..column import DataFrame, Column, build_col_broadcast, build_col_fun, build_col_literal
+from ..proto import types_pb2
+from ..proto import structured_transform_pb2 as st_pb2
 from .base import *
 from .error import *
 
@@ -29,7 +29,7 @@ def check_type_number(dt):
     return dt
   raise CreationError("Expected type to be a type number: %s" % dt)
 
-def make_aggregator_sql(sqlname, typefun, pyfun=None, spfun=None):
+def make_aggregator_sql(sqlname, typefun, pdfun=None, spfun=None):
   """
   sqlname: the name of the sql function
   typefun: datatype -> datatype
@@ -51,12 +51,17 @@ def make_aggregator_sql(sqlname, typefun, pyfun=None, spfun=None):
       op_extra=p,
       name_hint=sqlname,
       path_extra=name)
+  def function_pandas(df):
+    # Takes the input (assumed to be a pandas dataframe or series) and
+    # performs the pandas operation on it.
+    s = _convert_pd_series(df)
+    return pdfun(s)
   def function(df, name=None):
     if isinstance(df, (DataFrame, Column)):
       return function_karps(df, name)
     # TODO: check for Spark
     # Assume this is a python object, pass it to python:
-    return pyfun(df)
+    return function_pandas(df)
   # Useful for visualization of the function
   function.__name__ = sqlname
   return function
@@ -202,7 +207,7 @@ def make_transform_sql(sqlname, typefun,
           return obs
         if is_compatible_karps(obs):
           return observable(obs)
-        assert False (type(obs), obs)
+        assert False, (type(obs), obs)
       obss2 = [convert(o) for o in objs]
       return function_karps_obs(obss2, name)
     # Dealing with columns or dataframes.
@@ -240,4 +245,14 @@ def is_compatible_karps(pyobj):
   if pyobj is None:
     return False
   return isinstance(pyobj, (float, str, bool, int))
+
+def _convert_pd_series(obj):
+  if isinstance(obj, pd.Series):
+    return obj
+  if isinstance(obj, pd.DataFrame):
+    df = obj
+    cols = list(df.columns)
+    if len(cols) > 1:
+      raise ValueError("Expected one column but the following column: {}".format(cols))
+    return df[cols[0]]
 

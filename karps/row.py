@@ -16,10 +16,9 @@ class CellWithType(object):
 
   def __init__(self, proto):
     assert proto
-    self._proto = proto # A CellWithType proto
+    self._proto = proto # type: row_pb2.CellWithType
 
   def __repr__(self):
-    # TODO: this could be better.
     return repr((self.type, self._proto.cell))
 
   def __eq__(self, other):
@@ -129,7 +128,7 @@ def _as_cell(obj, tpe_proto):
   if tpe_proto is None or tpe_proto == _none_proto_type:
     return _as_cell_infer(obj)
   if obj is None:
-    assert tpe_proto.nullable, (obj, tpe)
+    assert tpe_proto.nullable, (obj, tpe_proto)
     # empty value, potentially no type either.
     return row_pb2.CellWithType(cell=row_pb2.Cell(), cell_type=tpe_proto)
   if isinstance(obj, int):

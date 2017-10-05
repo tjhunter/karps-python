@@ -1,10 +1,8 @@
 
 
 import grpc
-from google.protobuf.json_format import MessageToJson
 import logging
 
-from .proto import types_pb2
 from .proto import interface_pb2_grpc
 from .proto import interface_pb2
 from .proto import graph_pb2
@@ -65,7 +63,7 @@ class Session(object):
     if return_mode not in accepted_modes:
       raise ValueError(
         "Provided return mode ({}) is not one of the accepted modes: {}".format(
-          return_mode, return_modes))
+          return_mode, accepted_modes))
     paths = [an.path for an in fetches]
     paths_proto = [an.path._proto for an in fetches]
     g = _build_graph(fetches)
@@ -86,10 +84,10 @@ def session(name, port = 8082, address = "localhost"):
   """
   channel = grpc.insecure_channel('{}:{}'.format(address, str(port)))
   stub = interface_pb2_grpc.KarpsMainStub(channel)
-  sessionId = SessionId(id=name)
+  session_id = SessionId(id=name)
   # Make sure that the session exists before returning it.
   z = stub.CreateSession(interface_pb2.CreateSessionRequest(
-    requested_session=sessionId))
+    requested_session=session_id))
   return Session(name, stub)
 
 def _check_list(x):

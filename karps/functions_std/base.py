@@ -4,9 +4,10 @@ for other functions.
 They are not expected to be called by users, but are exposed
 for developers.
 """
-from ..column import Observable, DataFrame, Column, build_dataframe, build_observable, build_col_struct
+from ..column import Observable, build_dataframe, build_observable, build_col_struct
 from ..types import make_tuple, StructField, StructType
 from ..proto import std_pb2, graph_pb2
+from .error import create_error
 
 ########### FUNCTIONS ON COLUMNS #########
 
@@ -56,10 +57,11 @@ def pack_local(*observables):
   the observables together.
   """
   if not observables:
-    raise CreationError("List of observables cannot be empty")
+    create_error("List of observables cannot be empty")
   for obs in observables:
     if not isinstance(obs, Observable):
-      raise CreationError("Expected input to be of type observable, but got type %s instead for %s" % (type(obs), obs))
+      create_error("Expected input to be of type observable, but got type %s instead for %s" % (type(obs),
+                                                                                     obs))
   tpe = make_tuple(*[obs.type for obs in observables])
   return build_observable(
     op_name="org.spark.PackLocal",

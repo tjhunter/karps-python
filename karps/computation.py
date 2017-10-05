@@ -38,7 +38,7 @@ class Computation(object):
     # All the results that we have received so far.
     self._results = {}
     # The compilation phases.
-    self._compilation_phases = None
+    self._compilation_phases = []
     # The extra phases that we can also access.
     # They are all the phases related to Spark.
     # Type: string -> graph_pb2
@@ -70,7 +70,7 @@ class Computation(object):
         return spark_phase_graph
     step_names = [comp_phase.phase_name for comp_phase in self._compilation_phases]
     extra_step_names = list(self._extra_phases.keys())
-    logger.warn("Could not find compiler step %s. Available steps are %s and %s",
+    logger.warning("Could not find compiler step %s. Available steps are %s and %s",
       step_name, step_names, extra_step_names)
     return None
 

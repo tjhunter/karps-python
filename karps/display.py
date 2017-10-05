@@ -1,5 +1,6 @@
 # TensorFlow Graph visualizer code
 import numpy as np
+import tensorflow as tf
 
 __all__ = ['show_graph', 'show_phase']
 

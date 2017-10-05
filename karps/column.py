@@ -1,7 +1,6 @@
 """ The expression of a column or a dataframe (unbounded lists of values).
 """
 
-#from pyrsistent import m as PMap
 import re
 
 from .proto import types_pb2, std_pb2
