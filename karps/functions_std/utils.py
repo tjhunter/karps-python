@@ -128,6 +128,23 @@ def make_transform_sql1(sqlname, typefun, pyfun=None, spfun=None):
   function.__name__ = sqlname
   return function
 
+def make_transform_sql2(sqlname, typefun, pyfun=None):
+  """ Makes a sql transformer that accepts two arguments.
+
+  sqlname: the name of the sql function.
+  typefun: a function that accepts a list of datatypes and returns a datatype.
+  numargs: the number of arguments accepted by this transformer.
+  pyfun: a python function that can perform the equivalent operation (if possible).
+  spfun: a spark function that does the equivalent operation.
+
+  Returns a function of type (input: col-like, name: string) -> col-like, with the following rules:
+   - observable -> observable
+   - column -> column
+   - dataframe -> dataframe
+   - python object -> python object
+  """
+  return make_transform_sql(sqlname, typefun, numArgs=2, pyfun=pyfun)
+
 def make_transform_sql(sqlname, typefun,
   numArgs=None, pyfun=None, spfun=None):
   """ Makes a sql transformer that accepts a fixed number of arguments (greater than one).

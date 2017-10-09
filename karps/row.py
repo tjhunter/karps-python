@@ -1,12 +1,12 @@
 """ Utilities to express rows of data with Karps.
 """
+import pandas as pd
 
 from .proto import types_pb2
 from .proto import row_pb2
-
 from .types import *
 
-__all__ = ['CellWithType', 'as_cell', 'as_python_object']
+__all__ = ['CellWithType', 'as_cell', 'as_python_object', 'as_pandas_object']
 
 class CellWithType(object):
   """ A cell of data, with its type information.
@@ -56,6 +56,14 @@ def as_python_object(cwt):
   """ Converts a CellWithType object to a python object (best effort).
   """
   return _as_python(cwt._proto.cell, cwt._proto.cell_type)
+
+def as_pandas_object(cwt):
+  """Converts a CellWithType object to a pandas object (best effort)"""
+  pobj = as_python_object(cwt)
+  if isinstance(pobj, list):
+    # This is a list, try to convert it to a pandas dataframe.
+    return pd.DataFrame(pobj)
+  return pobj
 
 def _as_python(c_proto, tpe_proto):
   # The type is still required for dictionaries.

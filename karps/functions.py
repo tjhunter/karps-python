@@ -1,11 +1,17 @@
 """ The standard library of dataframe functions in Karps.
+
+All these functions operate on Karps dataframes and Pandas dataframes, and return the same results regardless of
+the input.
 """
+
+import builtins as _b
+import pandas as pd
+import numpy as np
+from pandas import Series as PS
 
 from .types import IntegerType, DoubleType, BooleanType, ArrayType
 from .functions_std.utils import *
 from .functions_std.error import *
-import builtins as _b
-from pandas import Series as PS
 
 #__all__ = ['as_double', 'collect', 'count', 'inv', 'max']
 
@@ -21,6 +27,8 @@ def _check_cmp(dt1, dt2):
   _check_same_2(dt1, dt2)
   return BooleanType()
 
+############ Aggregators #############
+
 collect = make_aggregator_sql("collect_list", ArrayType, _b.list)
 
 max = make_aggregator_sql("max", check_type_number, PS.max)
@@ -29,24 +37,32 @@ count = make_aggregator_sql("count", lambda x: IntegerType(), PS.count)
 
 sum = make_aggregator_sql("sum", check_type_number, PS.sum)
 
+
+############ Universal functions ##########
+
 inv = make_transform_sql1("inverse", check_type_number, lambda x: 1/x)
 
-plus = make_transform_sql("plus", _check_same_2, 2, lambda x1, x2: x1+x2)
+plus = make_transform_sql2("plus", _check_same_2, lambda x1, x2: x1+x2)
 
-minus = make_transform_sql("minus", _check_same_2, 2, lambda x1, x2: x1-x2)
+minus = make_transform_sql2("minus", _check_same_2, lambda x1, x2: x1-x2)
 
-multiply = make_transform_sql("multiply", _check_same_2, 2, lambda x1, x2: x1*x2)
+multiply = make_transform_sql2("multiply", _check_same_2, lambda x1, x2: x1*x2)
 
-divide = make_transform_sql("divide", _check_same_2, 2, lambda x1, x2: x1/x2)
+divide = make_transform_sql2("divide", _check_same_2, lambda x1, x2: x1/x2)
 
 def _cast_double(dt):
   if dt == DoubleType() or dt == IntegerType():
     return DoubleType()
   raise CreationError("Cannot cast type {} to double".format(dt))
 
-as_double = make_transform_sql("cast_double", _cast_double, 1, float)
+def _cast_double_py(x):
+  if isinstance(x, pd.Series):
+    return PS.astype(x, np.double)
+  return float(x)
 
-greater_equal = make_transform_sql("greater_equal", _check_cmp, 2, lambda x1, x2: x1==x2)
+as_double = make_transform_sql1("cast_double", _cast_double, _cast_double_py)
+
+greater_equal = make_transform_sql2("greater_equal", _check_cmp, lambda x1, x2: x1==x2)
 
 
 ########### FUNCTIONS ON DATASETS #########
@@ -76,3 +92,8 @@ def filter(filter_col, col, name=None):
     name_hint="filter",
     path_extra=name)
 
+def groupby(key_col, value_col):
+  pass
+
+def agg(group, agg_obj):
+  pass

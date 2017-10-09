@@ -36,20 +36,21 @@ class Session(object):
   #   """
   #   pass
 
-  def run(self, fetches, return_mode="proto"):
+  def eval(self, fetches, return_mode="pandas"):
     """ Blocks until all the fetches are executed.
 
     Return modes (string):
      - proto: returns a row.CellWithType object, which is the most precise, but not
               very user friendly
      - python: converts the results to python data structures (basic types, lists, dictionaries)
-     - pandas: returns a pandas dataframe
+     - pandas: returns a pandas dataframe (or a single value if the value is a scalar).
     """
     computation = self.compute(fetches, return_mode)
     return computation.values()
 
   def compute(self, fetches, return_mode="proto"):
-    """ Executes the fetches in an asynchronous manner.
+    """ Executes the fetches in an asynchronous manner: it returns a computation object that can be queried later
+    for the results, or for detailed information about Spark and the computations.
 
     return_mode: see run()
 

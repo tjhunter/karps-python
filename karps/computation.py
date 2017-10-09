@@ -5,7 +5,7 @@ from tensorflow.core.framework import graph_pb2
 
 from .proto import computation_pb2
 from .utils import Path
-from .row import CellWithType, as_python_object
+from .row import CellWithType, as_python_object, as_pandas_object
 
 __all__ = ['Computation']
 
@@ -60,7 +60,7 @@ class Computation(object):
   def compiler_step(self, step_name):
     """ Returns the given compiler phase.
     """
-    while self._compilation_phases is None:
+    while not self._compilation_phases:
       self._progress()
     for comp_phase in self._compilation_phases:
       if comp_phase.phase_name.lower() == step_name.lower():
@@ -96,6 +96,8 @@ class Computation(object):
       return res
     if self._return_mode == 'python':
       return as_python_object(res)
+    if self._return_mode == 'pandas':
+      return as_pandas_object(res)
 
   def _progress(self):
     """ Attempts to make progress by blocking on the connection until an update is received.

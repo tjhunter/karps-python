@@ -99,3 +99,9 @@ ENV/
 
 # mypy
 .mypy_cache/
+
+MANIFEST
+Pipfile.lock
+.DS_store
+.idea/
+tensorflow/

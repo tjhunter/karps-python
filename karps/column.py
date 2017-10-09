@@ -32,6 +32,12 @@ class HasArithmeticOps(object):
     from .functions import minus
     return minus(self, other)
 
+  def __div__(self, other):
+    return self.__truediv__(other)
+
+  def __rdiv__(self, other):
+    return self.__rtruediv__(other)
+
   def __truediv__(self, other):
     from .functions import divide
     return divide(self, other)
@@ -39,7 +45,7 @@ class HasArithmeticOps(object):
   def __rtruediv__(self, other):
     from .functions import divide, inv
     # TODO: hack, should be done in the compiler
-    if other == 1.0:
+    if other == 1.0 or other == 1:
       return inv(self)
     return divide(other, self)
 
